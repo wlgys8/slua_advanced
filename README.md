@@ -9,7 +9,7 @@ Plugin framework based on Unity+SLua
 
 Add LuaManager.cs to a scene gameobject.<br>
 
-##LuaPlugins
+##How to add plugin
 
 Create two folders named Plugin1 & Plugin2 under LuaPlugins.<br>
 Then create a file named "main.lua" under each folder.

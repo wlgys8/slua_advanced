@@ -1,18 +1,19 @@
 # UniSLuaPF
 Plugin framework based on Unity+SLua
+基于Unity和Slua的插件式开发框架
 
-##Setup
+##Setup (初始化)
 * SLua repository : https://github.com/pangweiwei/slua
 * ShellHelper repository : https://github.com/wlgys8/UnityShellHelper
-* LuaPlugins : 用户的Lua代码在此处
-* LuaFramwork : 框架代码在此处
+* LuaPlugins : user's code is here.  
+* LuaFramwork : framework's code is here. 
 
 1. Click Menu->Slua->UnityEngine->Make
 2. Click Menu->Slua->Custom->Make
 3. Add LuaManager.cs to a scene gameobject.
 4. Set the `autoBoot` in inspector to `True` 
 
-##How to add plugin
+##How to add plugin (新建插件)
 
 Create two folders named Plugin1 & Plugin2 under LuaPlugins.<br>
 Then create a file named "main.lua" under each folder.
@@ -45,16 +46,16 @@ Structure：
 				"Plugin2",
 			}
 		}
-##How to share code between plugins
+##How to share code between plugins (插件之间的互相访问)
 
-##How to build plugins as assetBundles
+##How to build plugins as assetBundles (如何打包成AssetsBundle)
 Click Menu->Build->BuildLuaPlugins
 
 Framework will generate assetbundles under Assets/Output/\<Platform\>/
 
-##How to compile lua to bytecodes
+##How to compile lua to bytecodes (如何将Lua编译成bytecode)
 
-##How to load lua from assetbundles.
+##How to load lua from assetbundles. (如何从AssetBundle里加载代码）
 
 1. Put assetbundles built above under StreamingAssets
 2. Set LuaManager.mode = LuaRunMode.AssetBundle.
@@ -63,7 +64,7 @@ In Editor mode,luaManager will load lua file directly from editor,all modificati
 
 In AssetBundle mode,luaManager will load lua file from assetbundle.If some files get changed,they should be rebuilt to to make the modifications work.
 
-##If my assetbundles are on the server?
+##If my assetbundles are on the server? （如何从服务器上下载插件代码)
 Set LuaManager.autoBoot = false,and boot the lua manager by yourself.
 
 Before call LuaManager.LoadAllPlugins(), assign the url to the assetbundle that you want to load from server.
@@ -83,7 +84,7 @@ manager will load assetbundles from Application.StreamingAssets if there are no 
 		
 
 		
-##OOP implements
+##OOP implements (面向对象实现)
 
 We can use keywork 'class' to define a class:
 

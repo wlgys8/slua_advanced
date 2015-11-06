@@ -2,17 +2,43 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Asset bundle manager.
+/// </summary>
 public class AssetBundleManager : MonoBehaviour{
 
-	public static AssetBundleManager CreateManager(){
-		AssetBundleManager manager = new GameObject("AssetBundleManager").AddComponent<AssetBundleManager>();
-		GameObject.DontDestroyOnLoad(manager.gameObject);
-		return manager;
+
+	private Dictionary<string,string> _urlMap = new Dictionary<string, string>();
+	
+	private Dictionary<string,AssetBundle> _loaded = new Dictionary<string, AssetBundle>();
+	
+	public List<string> loadedBundleNames{
+		get{
+			List<string> ret = new List<string>();
+			ret.AddRange(_loaded.Keys);
+			return ret;
+		}
+	}
+	
+	public bool isDebugOn = true;
+	
+	private AssetBundleManifest _manifest;
+
+
+	///<summary>
+	///if <bundleName> should be loaded from a remote url,then add the url for <bundleName>.
+	/// Otherwise, manager will search the bundle in "Application.StreamingAssets"
+	/// </summary>
+
+	public void AddURL(string bundleName,string url){
+		bundleName = bundleName.ToLower();
+		_urlMap.Add(bundleName,url);
 	}
 
-	private IEnumerator _LoadManifest(string url,int version = 0 , System.Action<AssetBundleManifest> onDone = null){
+	private IEnumerator _LoadManifest(string bundleName,int version = -1 , System.Action<AssetBundleManifest> onDone = null){
 		WWW www = null;
-		if(url.StartsWith("file://")){
+		string url = GetURLFromBundleName(bundleName);
+		if(version < 0){
 			www = new WWW(url);
 		}else{
 			www = WWW.LoadFromCacheOrDownload(url,version);
@@ -37,25 +63,12 @@ public class AssetBundleManager : MonoBehaviour{
 		}
 	}
 
-	private Dictionary<string,AssetBundle> _loaded = new Dictionary<string, AssetBundle>();
-
-	public List<string> loadedBundleNames{
-		get{
-			List<string> ret = new List<string>();
-			ret.AddRange(_loaded.Keys);
-			return ret;
-		}
-	}
-
-	public bool isDebugOn = true;
-
-	private AssetBundleManifest _manifest;
-	public Request LoadManifest(string url,int version = 0 ){
+	public Request LoadManifest(string bundleName,int version = -1 ){
 		if(isDebugOn){
-			Debug.Log(string.Format("Load {0},version = {1}",url,version));
+			Debug.Log(string.Format("Load {0},version = {1}",bundleName,version));
 		}
 		Request req = new Request();
-		StartCoroutine(_LoadManifest(url,version,delegate(AssetBundleManifest obj) {
+		StartCoroutine(_LoadManifest(bundleName,version,delegate(AssetBundleManifest obj) {
 			req.NotifyDone(obj);
 			_manifest = obj;
 			if(isDebugOn){
@@ -71,13 +84,14 @@ public class AssetBundleManager : MonoBehaviour{
 		}
 	}
 
-	private IEnumerator _LoadAssetBundle(string url,string bundleName,System.Action<AssetBundle> onDone){
+	private IEnumerator _LoadAssetBundle(string bundleName,System.Action<AssetBundle> onDone){
 		AssetBundle bd = null;
 		do{
 			if(_loaded.ContainsKey(bundleName)){
 				break;
 			}
 			Hash128 hash = manifest.GetAssetBundleHash(bundleName);
+			string url = GetURLFromBundleName(bundleName);
 			WWW www =  WWW.LoadFromCacheOrDownload(url,hash);
 			yield return www;
 			bd = www.assetBundle;
@@ -90,13 +104,13 @@ public class AssetBundleManager : MonoBehaviour{
 		onDone(bd);
 	}
 
-	public Request LoadAssetBundle(string url,string bundleName){
+	public Request LoadAssetBundle(string bundleName){
 		bundleName = bundleName.ToLower();
 		if(isDebugOn){
-			Debug.Log(string.Format("Load {0},bundleName = {1}",url,bundleName));
+			Debug.Log(string.Format("Load {0},bundleName = {1}",bundleName,bundleName));
 		}
 		Request req = new Request();
-		StartCoroutine(_LoadAssetBundle(url,bundleName,delegate(AssetBundle obj) {
+		StartCoroutine(_LoadAssetBundle(bundleName,delegate(AssetBundle obj) {
 			req.NotifyDone(obj);
 			if(isDebugOn){
 				Debug.Log("load completed");
@@ -105,14 +119,25 @@ public class AssetBundleManager : MonoBehaviour{
 		return req;
 	}
 
-	//load from streaming asset.
-	public Request LoadAssetBundle(string bundleName){
-		bundleName = bundleName.ToLower();
-		string url = Application.streamingAssetsPath+"/"+bundleName;
-		if(!url.Contains("://")){
-			url = "file://" + url;
+	private string streamingAssetsPath{
+		get{
+			string url = Application.streamingAssetsPath;
+			if(!url.Contains("://")){
+				url = "file://"+url;
+			}
+			return url;
 		}
-		return LoadAssetBundle(url,bundleName);
+	}
+
+	private string GetURLFromBundleName(string bundleName){
+		string url = null;
+		if(_urlMap.ContainsKey(bundleName)){
+			url = _urlMap[bundleName];
+		}else{
+			bundleName = bundleName.ToLower();
+			url = streamingAssetsPath+"/"+bundleName;
+		}
+		return url;
 	}
 
 	private IEnumerator _LoadAllAssetBundles(System.Action<List<AssetBundle>> onDone){
@@ -152,6 +177,14 @@ public class AssetBundleManager : MonoBehaviour{
 			return false;
 		}
 		return _loaded[bundleName].Contains(fileName);
+	}
+
+
+	
+	public static AssetBundleManager CreateManager(){
+		AssetBundleManager manager = new GameObject("AssetBundleManager").AddComponent<AssetBundleManager>();
+		GameObject.DontDestroyOnLoad(manager.gameObject);
+		return manager;
 	}
 
 

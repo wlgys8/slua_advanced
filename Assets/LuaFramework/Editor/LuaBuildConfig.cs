@@ -4,7 +4,6 @@ using UnityEditor;
 
 public class LuaBuildConfig : ScriptableObject {
 
-	public LuaMode luaMode;
 	public string buildSymbol;
 
 	public string[] luaCompileriOS;
@@ -60,10 +59,10 @@ public class LuaBuildConfig : ScriptableObject {
 	public static LuaBuildConfig Instance{
 		get{
 			if(_instance == null){
-				_instance =  AssetDatabase.LoadAssetAtPath<LuaBuildConfig>("Assets/Build/buildConfig.asset");
+				_instance =  AssetDatabase.LoadAssetAtPath<LuaBuildConfig>("Assets/LuaFramework/buildConfig.asset");
 				if(_instance == null){
 					LuaBuildConfig config = ScriptableObject.CreateInstance<LuaBuildConfig>();
-					AssetDatabase.CreateAsset(config,"Assets/Build/buildConfig.asset");
+					AssetDatabase.CreateAsset(config,"Assets/LuaFramework/buildConfig.asset");
 					_instance = config;
 				}
 			}
@@ -79,8 +78,3 @@ public class LuaBuildConfig : ScriptableObject {
 
 }
 
-public enum LuaMode{
-	OnStreamingAssets,
-	OnServer,
-
-}

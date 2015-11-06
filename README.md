@@ -7,7 +7,7 @@ Plugin framework based on Unity+SLua
 * LuaPlugins : 用户的Lua代码在此处
 * LuaFramwork : 框架代码在此处
 
-Drag LuaDefaultBoot.cs to a scene gameobject.<br>
+Add LuaManager.cs to a scene gameobject.<br>
 
 ##LuaPlugins
 

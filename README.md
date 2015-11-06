@@ -25,13 +25,15 @@ Structure：
     	-Plugin2
     		-main.lua
 
-1.框架会遍历LuaPlugins目录下的文件夹<br>
-2.每个文件夹代表一个插件<br>
-3."main.lua" 作为插件的执行入口<br>
 
 1.Framework will traverse all folders under "LuaPlugins".<br>
 2.Each one folder represents a plugin.<br>
 3."main.lua" is used as the entry file.<br>
+
+1.框架会遍历LuaPlugins目录下的文件夹<br>
+2.每个文件夹代表一个插件<br>
+3."main.lua" 作为插件的执行入口<br>
+
 
 ### main.lua 
 
@@ -43,8 +45,48 @@ Structure：
 				"Plugin2",
 			}
 		}
+##How to share code between plugins
+
+##How to build plugins as assetBundles
+Click Menu->Build->BuildLuaPlugins
+
+Framework will generate assetbundles under Assets/Output/\<Platform\>/
+
+##How to compile lua to bytecodes
+
+##How to load lua from assetbundles.
+
+1. Put assetbundles built above under StreamingAssets
+2. Set LuaManager.mode = LuaRunMode.AssetBundle.
+
+In Editor mode,luaManager will load lua file directly from editor,all modifications on files will be work immediately.This mode is recommanded when you are in developing.
+
+In AssetBundle mode,luaManager will load lua file from assetbundle.If some files get changed,they should be rebuilt to to make the modifications work.
+
+##If my assetbundles are on the server?
+Set LuaManager.autoBoot = false,and boot the lua manager by yourself.
+
+Before call LuaManager.LoadAllPlugins(), assign the url to the assetbundle that you want to load from server.
+
+		IEnumerator Start(){
+			yield return manager.Setup();
+			manager.bundleManager.AddURL("bundleName","http://url-for-bundle");
+			.
+			.
+			.
+			yield return manager.LoadAllPlugins();
+			yield return manager.LaunchPlugin();
+		
+		}
+
+manager will load assetbundles from Application.StreamingAssets if there are no urls assigned to them.
+		
+
 		
 ##OOP implements
+
+We can use keywork 'class' to define a class:
+
 实现了class关键字.可以如下定义一个类型:
 
     class('ClassA')
@@ -82,45 +124,11 @@ Structure：
 	end
 
 	classend()
-	
+
+the way to use:	
+
 调用方式:
 
     local a = ClassA()
     a:foo()
-
-##How to build plugins as assetBundles
-Click Menu->Build->BuildLuaPlugins
-
-Framework will generate assetbundles under Assets/Output/\<Platform\>/
-
-##How to compile lua to bytecodes
-
-##How to load lua from assetbundles.
-
-1. Put assetbundles built above under StreamingAssets
-2. Set LuaManager.mode = LuaRunMode.AssetBundle.
-
-In Editor mode,luaManager will load lua file directly from editor,all modifications on files will be work immediately.This mode is recommanded when you are in developing.
-
-In AssetBundle mode,luaManager will load lua file from assetbundle.If some files get changed,they should be rebuilt to to make the modifications work.
-
-##If my assetbundles are on the server?
-Set LuaManager.autoBoot = false,and boot the lua manager by yourself.
-
-Before call LuaManager.LoadAllPlugins(), assign the url to the assetbundle that you want to load from server.
-
-		IEnumerator Start(){
-			yield return manager.Setup();
-			manager.bundleManager.AddURL("bundleName","http://url-for-bundle");
-			.
-			.
-			.
-			yield return manager.LoadAllPlugins();
-			yield return manager.LaunchPlugin();
-		
-		}
-
-manager will load assetbundles from Application.StreamingAssets if there are no urls assigned to them.
-		
-
 

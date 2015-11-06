@@ -41,7 +41,7 @@ Structure：
 			}
 		}
 		
-##OOP
+##OOP implements
 实现了class关键字.可以如下定义一个类型:
 
     class('ClassA')
@@ -85,4 +85,10 @@ Structure：
     local a = ClassA()
     a:foo()
 
+##How to build plugins as assetBundles
+Click Menu->Build->BuildLuaPlugins
+
+Framework will generate assetbundles under Assets/Output/\<Platform\>/
+
+##How to compile lua to bytecodes
 

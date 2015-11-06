@@ -10,6 +10,7 @@ Plugin framework based on Unity+SLua
 1. Click Menu->Slua->UnityEngine->Make
 2. Click Menu->Slua->Custom->Make
 3. Add LuaManager.cs to a scene gameobject.
+4. Set the `autoBoot` in inspector to `True` 
 
 ##How to add plugin
 
@@ -101,10 +102,12 @@ Framework will generate assetbundles under Assets/Output/\<Platform\>/
 
 In Editor mode,luaManager will load lua file directly from editor,all modifications on files will be work immediately.This mode is recommanded when you are in developing.
 
-In AssetBundle mode,luaManager will load lua file from assetbundle.If some files were changed,they should be rebuilt to assetbundles to make the modifications work.
+In AssetBundle mode,luaManager will load lua file from assetbundle.If some files get changed,they should be rebuilt to to make the modifications work.
 
 ##If my assetbundles are on the server?
-Before call LuaManager.LoadAllPlugins(),you must assign the url to the assetbundle.
+Set LuaManager.autoBoot = false,and boot the lua manager by yourself.
+
+Before call LuaManager.LoadAllPlugins(), assign the url to the assetbundle that you want to load from server.
 
 		IEnumerator Start(){
 			yield return manager.Setup();
@@ -116,9 +119,8 @@ Before call LuaManager.LoadAllPlugins(),you must assign the url to the assetbund
 			yield return manager.LaunchPlugin();
 		
 		}
-If an url has been assigned to a bundle,manager will load the bundle from url.
 
-Otherwise,manager will load it from Application.StreamingAssets.
+manager will load assetbundles from Application.StreamingAssets if there are no urls assigned to them.
 		
 
 

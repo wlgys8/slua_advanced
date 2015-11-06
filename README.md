@@ -54,6 +54,16 @@ Click Menu->Build->BuildLuaPlugins
 Framework will generate assetbundles under Assets/Output/\<Platform\>/
 
 ##How to compile lua to bytecodes (如何将Lua编译成bytecode)
+* click menu->build->config
+* set compiler path for your platform.
+* click menu->build->buildLuaPlugins
+
+either luac or luajit is ok.
+
+important:the vesion of lua or luajit used for compiling must be the same as the lib's version which under the folder "Plugin/\<Platform\>"
+
+Builder will search by path in order until get an available compiler.
+If no compiler is found, then the builder won't compile lua scripts.It will only change the extension from "\*.lua" to "\*.lua.txt"
 
 ##How to load lua from assetbundles. (如何从AssetBundle里加载代码）
 

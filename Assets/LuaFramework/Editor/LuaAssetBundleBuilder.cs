@@ -17,6 +17,7 @@ public class LuaAssetBundleBuilder{
 	private string _luaCompiler;
 
 	public LuaAssetBundleBuilder(){
+
 	}
 
 	public LuaAssetBundleBuilder(string luaCompiler){
@@ -34,14 +35,19 @@ public class LuaAssetBundleBuilder{
 			if(luaCompiler.EndsWith("luac")){
 				ShellHelper.ShellRequest req = ShellHelper.ProcessCommand("find "+input+" -name '*.lua' -exec "+this.luaCompiler+" -o {}.txt {} \\;","./");
 				return req;
-
 			}else{
 				ShellHelper.ShellRequest req = ShellHelper.ProcessCommand("find "+input+" -name '*.lua' -exec "+this.luaCompiler+" -b {} {}.txt \\;","./");
 				return req;
 			}
 
 		}else{
-			return null;
+			if(luaCompiler.EndsWith("luac")){
+				ShellHelper.ShellRequest req = ShellHelper.ProcessCommand(@"FOR %I IN ("+input+@"\*.lua) " + @" DO "+this.luaCompiler+@" -o ""%I.txt"" ""%I"" ",".");
+				return req;
+			}else{
+				ShellHelper.ShellRequest req = ShellHelper.ProcessCommand(@"FOR %I IN ("+input+@"\*.lua) " + @" DO "+this.luaCompiler+@" -b ""%I"" ""%I.txt"" ",".");
+				return req;
+			}
 		}
 	}
 

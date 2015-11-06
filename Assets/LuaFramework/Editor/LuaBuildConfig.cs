@@ -39,7 +39,7 @@ public class LuaBuildConfig : ScriptableObject {
 			case BuildTarget.StandaloneOSXUniversal:
 				luaCompilerPaths = this.luaCompilerOSX;
 				break;
-			case BuildTarget.StandaloneWindows64:
+			case BuildTarget.StandaloneWindows:
 				luaCompilerPaths = this.luaCompilerWindows;
 				break;
 			}

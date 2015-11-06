@@ -7,9 +7,14 @@ Plugin framework based on Unity+SLua
 * LuaPlugins : 用户的Lua代码在此处
 * LuaFramwork : 框架代码在此处
 
+Drag LuaDefaultBoot.cs to a scene gameobject.<br>
+
 ##LuaPlugins
 
-目录结构：
+Create two folders named Plugin1 & Plugin2 under LuaPlugins.<br>
+Then create a file named "main.lua" under each folder.
+
+Structure：
 
     -LuaPlugins
     	-Plugin1
@@ -17,7 +22,13 @@ Plugin framework based on Unity+SLua
     	-Plugin2
     		-main.lua
 
-框架会遍历LuaPlugins目录下的文件夹，并将main.lua作为插件的代码入口
+1.框架会遍历LuaPlugins目录下的文件夹<br>
+2.每个文件夹代表一个插件<br>
+3."main.lua" 作为插件的执行入口<br>
+
+1.Framework will traverse all folders under "LuaPlugins".<br>
+2.Each one folder represents a plugin.<br>
+3."main.lua" is used as the entry file.<br>
 
 ### main.lua 
 

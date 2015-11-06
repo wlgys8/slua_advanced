@@ -96,11 +96,16 @@ public class LuaAssetBundleBuilder{
 				}
 			}
 			string outputDirName = System.IO.Path.GetFileName(outputDir);
-			FileUtil.ReplaceFile(outputDir+"/"+outputDirName,outputDir+"/LuaPlugins");
-			FileUtil.ReplaceFile(outputDir+"/"+outputDirName+".manifest",outputDir+"/LuaPlugins.manifest");
+			RenameFile(outputDir+"/"+outputDirName,outputDir+"/LuaPlugins");
+			RenameFile(outputDir+"/"+outputDirName+".manifest",outputDir+"/LuaPlugins.manifest");
 
 			AssetDatabase.Refresh();
 		};
+	}
+
+	private void RenameFile(string from,string to){
+		FileUtil.DeleteFileOrDirectory(to);
+		FileUtil.MoveFileOrDirectory(from,to);
 	}
 
 	public void BuildWithRaw(string outputDir,string[] inputs,BuildTarget targetPlatform){
@@ -134,8 +139,8 @@ public class LuaAssetBundleBuilder{
 		}
 
 		string outputDirName = System.IO.Path.GetFileName(outputDir);
-		FileUtil.ReplaceFile(outputDir+"/"+outputDirName,outputDir+"/LuaPlugins");
-		FileUtil.ReplaceFile(outputDir+"/"+outputDirName+".manifest",outputDir+"/LuaPlugins.manifest");
+		RenameFile(outputDir+"/"+outputDirName,outputDir+"/LuaPlugins");
+		RenameFile(outputDir+"/"+outputDirName+".manifest",outputDir+"/LuaPlugins.manifest");
 		AssetDatabase.Refresh();
 
 	}

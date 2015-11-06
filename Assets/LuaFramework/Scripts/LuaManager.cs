@@ -23,8 +23,6 @@ public enum LuaRunMode{
 
 public class LuaManager : MonoBehaviour {
 
-
-	
 	public const string PluginRoot = "Assets/LuaPlugins";
 
 	[Tooltip("In editor mode,luaManager will load lua file directly from editor." +
@@ -32,6 +30,7 @@ public class LuaManager : MonoBehaviour {
 	    "In AssetBundle mode,luaManager will load lua file from assetbundle." +
 	    "If some files were changed,they should be rebuilt as assetbundles to make the modifications work.")]
 	public LuaRunMode mode = LuaRunMode.Editor;
+	public bool autoBoot = false;
 
 	private AssetBundleManager _pluginBundleManager;
 
@@ -50,22 +49,29 @@ public class LuaManager : MonoBehaviour {
 		}
 	}
 	public IEnumerator Start(){
-		Setup();
-		while(!isInited){
-			yield return null;
+		if(!autoBoot){
+			yield break;
 		}
+		yield return Setup ();
 		yield return LoadAllPlugins ();
 		LaunchPlugin();
 	}
 
-	public void Setup(){
+	public Coroutine Setup(){
+		return StartCoroutine(_Setup());
+	}
+
+	private IEnumerator _Setup(){
 		LuaState.loaderDelegate = LoadFile;
 		_svr = new LuaSvr();
 		_svr.init(delegate(int obj) {
-
+			
 		},delegate() {
 			_isInited = true;
 		},false);
+		while(!isInited){
+			yield return null;
+		}
 	}
 
 	public bool isInited{

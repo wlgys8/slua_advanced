@@ -2,7 +2,7 @@
 /// <summary>
 /// Lua asset bundle builder.
 /// Used for building all lua scripts into an assetbundle.
-/// If luaCompiler is assigned, the lua scripts will be compiled to bytecodes.
+/// If luaCompiler is assigned, lua scripts will be compiled to bytecodes.
 /// Otherwise, only file extension will be changed to ".lua.txt"
 /// </summary>
 

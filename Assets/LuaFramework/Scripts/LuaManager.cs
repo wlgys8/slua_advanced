@@ -4,25 +4,34 @@ using SLua;
 using System.Collections.Generic;
 using System.IO;
 
-public class LuaManager  {
+public class LuaManager : MonoBehaviour {
 
 
 	
-	private static AssetBundleManager _pluginBundleManager;
 	public const string PluginRoot = "Assets/LuaPlugins";
 	
 	#if UNITY_EDITOR
 	internal static bool isEditorMode = true;
 	#else
 	internal static bool isEditorMode = false;
-	
 	#endif
 
-	static LuaSvr _svr;
+	private AssetBundleManager _pluginBundleManager;
 
-	private static bool _isInited = false;
+	private LuaSvr _svr;
 
-	public static void Setup(){
+	private bool _isInited = false;
+
+	public IEnumerator Start(){
+		Setup();
+		while(!isInited){
+			yield return null;
+		}
+		yield return LoadAllPlugins ();
+		LaunchPlugin();
+	}
+
+	public void Setup(){
 		LuaState.loaderDelegate = LoadFile;
 		_svr = new LuaSvr();
 		_svr.init(delegate(int obj) {
@@ -32,19 +41,19 @@ public class LuaManager  {
 		},false);
 	}
 
-	public static bool isInited{
+	public bool isInited{
 		get{
 			return _isInited;
 		}
 	}
 
-	public static LuaState L{
+	public LuaState L{
 		get{
 			return _svr.luaState;
 		}
 	}
 
-	private static byte[] LoadFile(string fileName){
+	private byte[] LoadFile(string fileName){
 		if(fileName.EndsWith(".lua") || fileName.EndsWith(".txt")){
 			fileName = fileName.Substring(0,fileName.Length - 4);
 		}
@@ -74,7 +83,7 @@ public class LuaManager  {
 
 	}
 
-	private static byte[] LoadFileFromPlugin(string pluginName,string fileName){
+	private byte[] LoadFileFromPlugin(string pluginName,string fileName){
 		try{
 			string prefix =  PluginRoot;
 			string fullPath = prefix + "/"+ pluginName + "/"+fileName;
@@ -101,11 +110,11 @@ public class LuaManager  {
 	}
 
 
-	public static object DoFile(string fileName){
+	public object DoFile(string fileName){
 		return _svr.start(fileName);
 	}
 
-	private static IEnumerator _LoadAllPlugins(){
+	private IEnumerator _LoadAllPlugins(){
 		string path = Application.streamingAssetsPath+"/LuaPlugins";
 		if(!path.Contains("file://")){
 			path = "file://"+path;
@@ -116,18 +125,18 @@ public class LuaManager  {
 		yield return bundleManager.StartCoroutine(req.WaitUntilDone());
 	}
 	
-	public static Coroutine LoadAllPlugins(){
+	public Coroutine LoadAllPlugins(){
  		if(isEditorMode){
 			return null;
 		}
 		return bundleManager.StartCoroutine(_LoadAllPlugins());
 	}
 
-	public static void LaunchPlugin(){
-		LuaManager.DoFile("LuaEnv/plugin.txt");
+	public void LaunchPlugin(){
+		this.DoFile("LuaEnv/plugin.txt");
 	}
 	
-	internal static AssetBundleManager bundleManager{
+	internal AssetBundleManager bundleManager{
 		get{
 			if(_pluginBundleManager == null){
 				_pluginBundleManager = AssetBundleManager.CreateManager();
@@ -137,7 +146,7 @@ public class LuaManager  {
 	}
 
 	
-	public static bool ExistFile(string pluginName,string fileName){
+	public bool ExistFile(string pluginName,string fileName){
 		string prefix = PluginRoot;
 		string fullPath = prefix +"/"+ pluginName + "/"+fileName;
 		if(isEditorMode){
@@ -147,7 +156,7 @@ public class LuaManager  {
 		}
 	}
 
-	public static string[] GetPluginList(){
+	public string[] GetPluginList(){
 		if(isEditorMode){
 			string[] dirs = Directory.GetDirectories(PluginRoot);
 			for(int i = 0;i<dirs.Length;i++){
@@ -170,5 +179,19 @@ public class LuaManager  {
 		}
 	}
 
+
+	private static LuaManager _instance;
+
+	public static LuaManager Instance{
+		get{
+			if(_instance == null){
+				_instance = GameObject.FindObjectOfType<LuaManager>();
+			}
+			if(_instance == null){
+				_instance = new GameObject("LuaManager").AddComponent<LuaManager>();
+			}
+			return _instance;
+		}
+	}
 
 }

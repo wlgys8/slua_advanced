@@ -13,7 +13,7 @@ public class LuaPluginUtil  {
 
 
 	public static string[] GetPluginList(){
-		return LuaManager.GetPluginList();
+		return LuaManager.Instance.GetPluginList();
 	}
 
 	public static bool ExistFile(string pluginName,string fileName){
@@ -22,7 +22,7 @@ public class LuaPluginUtil  {
 			fileName = fileName.Substring(0,fileName.Length-4);
 		}
 		fileName = fileName.Replace(".","/");
-		return LuaManager.ExistFile(pluginName,fileName);
+		return LuaManager.Instance.ExistFile(pluginName,fileName);
 	}
 		
 

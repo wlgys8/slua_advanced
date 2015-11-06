@@ -17,7 +17,7 @@ public class LuaComponent : MonoBehaviour {
 		CallLuaFunction("OnDestroy",_table);
 		if(_table != null){
 			_table["__index"] = null;
-			LuaFunction func = LuaManager.L["setmetatable"] as LuaFunction;
+			LuaFunction func = LuaManager.Instance.L["setmetatable"] as LuaFunction;
 			func.call(_table,null);
 			_table.Dispose();
 			_table = null;

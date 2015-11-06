@@ -1,0 +1,6 @@
+*.svn
+Library/*
+Temp/*
+*.csproj
+*.sln
+*.userprefs

@@ -1,0 +1,241 @@
+--[[=====================
+	class('A')
+
+	--构造函数
+	function A:ctor(x)
+		self.x = x
+	end
+
+	function A:test()
+		print(self.x)
+	end
+	classend()
+
+	classend之后无法再为类新增字段和函数
+
+================================]]
+
+--定义关键字class
+
+local keywords={
+	property = true,
+	classend = true,
+}
+
+local function CheckKeyWords(word)
+	if keywords[word] then
+		error(word..' is keyword.',3)
+		return true
+	end
+	return false
+end
+
+local function class (name,Super)
+	
+	if not name  then
+		error('class must have a name.',2)
+		return
+	end
+	local G = getfenv(2) --获取上一级的环境
+
+	--检查是否存在同名类
+	G._classes = G._classes or {}
+	if G._classes[name] then
+		error('class has been defined. className = '..name,2)
+		return
+	end
+
+
+	--保存属性函数
+	local property={
+		get = {},
+		set = {},
+	}
+
+
+
+	local cls = {
+		_classes = {},
+		_className = name,
+		property = property ,
+	}
+
+
+	local function SetClassProperty(k,v)
+		if property.set[k] then
+			property.set[k](v)
+			return true
+		end
+		return false
+	end
+
+	local clsContent = {
+
+	}
+
+	local clsMeta={
+		__index = function (_,k,v)
+			if property.get[k] then --有属性，则返回属性
+				return property.get[k]()
+			end
+			if clsContent[k]~= nil then --否则从内容表获取字段
+				return clsContent[k]
+			end
+		end,
+		__newindex = function (_,k,v)
+
+			if SetClassProperty(k,v) then --有属性，则设置属性
+				return
+			end
+			clsContent[k] = v --否则直接设置字段
+		end,
+
+		__tostring = function ( self )
+			local meta = getmetatable(self)
+			local backup = meta.__tostring
+			meta.__tostring = nil
+			local address = tostring(self)
+			meta.__tostring = backup
+			return '[class]'..name..','..address
+		end
+	}
+
+	cls.Super = Super
+	cls._G = cls
+	setmetatable(cls,clsMeta)
+	G._classes[name] = cls
+
+	local clsEnv = {
+		__index = function (_,k)
+			local v = cls[k]
+			if v ~= nil then
+				return v
+			end
+			return G[k]
+		end,
+		__newindex = function (_,k,v)
+			if CheckKeyWords(k) then
+				return
+			end
+			cls[k] = v
+		end
+	}
+	setmetatable(clsEnv,clsEnv)
+	--设置class关键字之后的环境
+	setfenv(2,clsEnv)
+	
+	
+	--实例化函数
+	clsMeta.__call = function(_,...)
+
+		local instance = {
+
+		}
+		local instanceContent = {
+
+		}
+
+		local function SetInstProp(k,v)
+			if k == 'property' then
+				error('property is keyword.',2)
+				return true
+			end
+			if property.set[k] then
+				property.set[k](instance,v)
+				return true
+			end
+			return false
+		end
+
+		local instanceMeta = {
+			__tostring = function (self )
+				local meta = getmetatable(self)
+				local backup = meta.__tostring
+				meta.__tostring = nil
+				local address = tostring(self)
+				meta.__tostring = backup
+				return '['..cls._className..'][Instance]'..','..address
+			end,
+			__index = function (_,k)
+				local v = property.get[k]
+				if v then  --如果有属性，则优先读取属性的方法
+					return v(instance)
+				end
+				v = instanceContent[k]  --其次检查自身是否存在字段或方法
+				if v ~= nil then
+					return v
+				end
+				v = cls[k] --再者从class定义中读取
+				if v and type(v) == 'function' then 
+					return v
+				end
+				local super = rawget(instanceContent,'super')
+				if not super then
+					return nil
+				end
+				v = super[k] --最后从父类里读
+				return v
+			end,
+			__newindex = function ( _,k,v )
+				if CheckKeyWords(k) then
+					return
+				end
+				if SetInstProp(k,v) then
+					return
+				end
+				instanceContent[k] = v
+			end
+		}
+
+		setmetatable(instance,instanceMeta)
+		--如果本类没有构造函数，则默认调用父类构造函数。否则需要在本类构造函数里手动调用父类构造函数
+		if instance.ctor then
+			instance:ctor(...)
+			if Super and not instance.super then
+				error('self.super = Super(...) should be called!!!',3)
+			end
+		elseif Super then
+			instance.super = Super(...)
+		end
+
+		instanceMeta.__newindex = function(_,k,v)
+			if SetInstProp(k,v) then
+				return
+			end
+			if instanceContent[k]~= nil then
+				instanceContent[k] = v
+				return
+			end
+			if instance.super then
+				instance.super[k] = v
+				return
+			end
+			error('undefined field in class ['..name..']'..',field = '..k,3)
+		end
+		return instance
+	end
+
+
+	--classend关键字之后的环境恢复为原来的环境。以及无法再为类添加新字段、函数
+	cls.classend = function()
+		cls.__newindex = function(_,k,v)
+			if SetClassProperty(k,v) then
+				return
+			end
+			if Super and Super[k] then
+				Super[k] = value
+				return
+			end
+			error('undefined field in class ['..name..']'..',field = '..k,3)
+		end
+		setfenv(2,G)
+	end
+
+	--将类导出到上一级环境
+	rawset(G,name,cls)
+	return cls
+end
+
+_G.class = class
+return class
+

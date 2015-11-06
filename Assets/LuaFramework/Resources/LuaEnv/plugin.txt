@@ -1,0 +1,202 @@
+
+
+require('io')
+require('LuaEnv.class')
+
+-- 重写print函数，用以输出trace信息---
+local basePrint = print
+print = function( ... )
+	local ret = debug.traceback('',2)
+	local arg = {...}
+	arg[#arg+1]=ret
+	basePrint(unpack(arg))
+end
+
+local loadPluginFile = function ( pluginName,fileName)
+	local fullUrl = 'plug://'..pluginName..'/'..fileName
+	if LuaPluginUtil.ExistFile(pluginName,fileName) then
+		local f = assert(loadfile(fullUrl))
+		return f
+		--[[
+		local success,ret =  pcall(loadfile,fullUrl)
+		if success then
+			return ret
+		else
+			error(ret,3)
+		end--]]
+	end
+	return nil,false
+end
+
+plugins = plugins or {}
+
+--[[
+local _snapG = {}
+for k,v in pairs(_G) do
+	_snapG[k] = v
+end]]
+
+local baseRequire = require
+
+
+local function doPlugin(name, onComplete)
+	if plugins[name] then 
+		--print('already contains a plguin named '..name,2)
+		onComplete()
+		return
+	end
+	print('require ', 'plug://'..name..'/main.lua')
+	require('plug://'..name..'/main.lua')
+	if plugins[name] then
+		onComplete()
+		return
+	end
+
+	local co = coroutine.create(function ()
+		while not plugins[name] do --until doPlugin completed
+			UnityEngine.Yield()
+		end
+		onComplete()
+	end)
+	coroutine.resume(co)
+end 
+
+
+plugin = function(table)
+	local name = table.name
+	if not name then
+		error('plugin need a name.',2)
+		return
+	end
+
+	if plugins[name] then
+		error('already contains a plguin named '..name,2)
+		return
+	end
+	local main = table.main
+	if not main then
+		error('plugin need a mani func',2)
+		return
+	end
+
+
+
+	local run = function ( ... )
+
+		--新环境继承原来的全局环境
+		local Global = {
+			__index = _G,
+			require = false,
+			use = false,
+			_classes = {},
+		}
+		Global._G = _G
+		Global._sys = _G
+		Global.Global = Global
+
+		setmetatable(Global,Global)
+
+		
+
+		local env = {
+		} --为use定义一个新环境，继承Global,但不允许定义新字段
+		env._G = env
+		--新环境不允许直接定义全局变量，只能通过Global.xxx来定义
+		env.__newindex = function(_,k,v)
+			if Global[k] then
+				Global[k] = v
+				return
+			end
+			error('Undefined field in global, name = '..k,2)
+		end
+		env.__index = Global
+		setmetatable(env,env)
+
+		--use函数,等同于require,但不允许定义全局变量
+		local use = function(path,fileEnv,...)
+
+			fileEnv = fileEnv or env
+			local url = 'plug://'..name..'/'..path
+			if package.loaded[url] then
+				return package.loaded[url]
+			end
+			print('use',path)
+			local file = loadPluginFile(name,path)
+			if file then
+				print('require '.. url)
+				package.loaded[url] = true
+				setfenv(file,fileEnv)
+				local ret = file(...)
+				if ret ~= nil then
+					package.loaded[url] = ret
+				end
+				return package.loaded[url]
+			end
+			return baseRequire(path,...)
+		end
+		setfenv(use,env)
+		Global.use = use
+		
+		--require函数,等同于use,允许定义全局变量
+		Global.require = function (path,...)
+			return use(path,Global,...)
+		end
+		--将main函数设置为在新环境下执行
+		setfenv(main,env)
+
+		local _,err = pcall(main)
+		if err then
+			error(err,3)
+		end
+
+		plugins[name] = env
+	end
+
+	local dependencies = table.dependencies
+	
+	--加载所有依赖的plugin.
+	local co = coroutine.create(function ( co )
+		if dependencies then
+			for i ,v in ipairs(dependencies) do
+				local done = false
+				doPlugin(v,function()
+					done = true
+					if coroutine.status(co) == 'suspended' then
+						coroutine.resume(co)
+					end
+				end)
+				if not done then
+					coroutine.yield()
+				end
+			end
+		end
+		--执行本插件
+		run()
+	end)
+	coroutine.resume(co,co)
+end
+
+  
+
+local function LoadAllPlugins()
+	local plugins = LuaPluginUtil.GetPluginList()
+	local co = coroutine.create(function(co)
+		for i,name in ipairs(plugins) do
+			local done = false
+			doPlugin(name,function ()
+				done = true
+				if coroutine.status(co) == 'suspended' then
+					coroutine.resume(co)
+				end
+			end)
+			if not done then
+				coroutine.yield()
+			end
+		end
+		
+	end)
+	coroutine.resume(co,co)
+end 
+
+LoadAllPlugins()
+

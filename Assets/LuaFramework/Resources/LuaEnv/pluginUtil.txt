@@ -1,0 +1,29 @@
+
+local WWW = UnityEngine.WWW
+
+local loaded = {}
+
+local function loadPlugin(path,hash,onComplete)
+	if loaded[path] then
+		onComplete(loaded[path])
+		return
+	end
+
+	local co = coroutine.create(function( ... )
+		local www = WWW.LoadFromCacheOrDownload(path,hash)
+		Yield(www)
+		if www.assetbundle then
+			loaded[path] = www.assetbundle
+		end
+		onComplete(www.assetbundle)
+	end)
+	coroutine.resume(co)
+end
+
+
+local 
+
+LPluginBundles = {
+	Load = loadPlugin,
+
+}

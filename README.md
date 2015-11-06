@@ -10,12 +10,14 @@ Plugin framework based on Unity+SLua
 ##LuaPlugins
 
 目录结构：
-    LuaPlugins
-    TestPlugin
-  main.lua
-  Plugin2
-  main.lua
-123
+
+    -LuaPlugins
+    	-Plugin1
+    		-main.lua
+    	-Plugin2
+    		-main.lua
+
+框架会遍历LuaPlugins目录下的文件夹，并将main.lua作为插件的代码入口
 
 ##OOP
 实现了class关键字.可以如下定义一个类型:

@@ -19,6 +19,17 @@ Plugin framework based on Unity+SLua
 
 框架会遍历LuaPlugins目录下的文件夹，并将main.lua作为插件的代码入口
 
+### main.lua 
+
+		plugin{
+			name = 'Plugin1', --plugin name
+			main = function ( ... ) --entry function
+			end,
+			dependencies = { -- depend on any other plugins?
+				"Plugin2",
+			}
+		}
+		
 ##OOP
 实现了class关键字.可以如下定义一个类型:
 

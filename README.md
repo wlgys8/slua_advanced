@@ -2,7 +2,20 @@
 Plugin framework based on Unity+SLua
 
 ##Setup
+* SLua repository : https://github.com/pangweiwei/slua
+* ShellHelper repository : https://github.com/wlgys8/UnityShellHelper
+* LuaPlugins : 用户的Lua代码在此处
+* LuaFramwork : 框架代码在此处
 
+##LuaPlugins
+
+目录结构：
+    LuaPlugins
+    TestPlugin
+  main.lua
+  Plugin2
+  main.lua
+123
 
 ##OOP
 实现了class关键字.可以如下定义一个类型:

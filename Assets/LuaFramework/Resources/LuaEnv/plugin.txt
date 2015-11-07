@@ -30,12 +30,6 @@ end
 
 plugins = plugins or {}
 
---[[
-local _snapG = {}
-for k,v in pairs(_G) do
-	_snapG[k] = v
-end]]
-
 local baseRequire = require
 
 
@@ -75,7 +69,7 @@ plugin = function(table)
 	end
 	local main = table.main
 	if not main then
-		error('plugin need a mani func',2)
+		error('plugin need a main func',2)
 		return
 	end
 

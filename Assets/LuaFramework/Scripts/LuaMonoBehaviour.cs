@@ -4,7 +4,7 @@ using SLua;
 using LuaInterface;
 
 [CustomLuaClass]
-public class LuaComponent : MonoBehaviour {
+public class LuaMonoBehaviour : MonoBehaviour {
 
 	void Awake(){
 		CallLuaFunction("Awake",_table);
@@ -43,7 +43,7 @@ public class LuaComponent : MonoBehaviour {
 
 
 	public static LuaTable Add(GameObject go,LuaTable table){
-		LuaComponent cp = go.AddComponent<LuaComponent>();
+		LuaMonoBehaviour cp = go.AddComponent<LuaMonoBehaviour>();
 		cp.Initlize(table);
 		cp.CallLuaFunction("Awake",table,cp);
 		return table;

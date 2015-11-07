@@ -143,3 +143,4 @@ the way to use:
     local a = ClassA()
     a:foo()
 
+##How to receive MonoBehaviour Messages?

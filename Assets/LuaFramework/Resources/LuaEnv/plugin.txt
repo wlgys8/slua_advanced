@@ -2,6 +2,7 @@
 
 require('io')
 require('LuaEnv.class')
+require('LuaEnv.behaviour')
 
 -- 重写print函数，用以输出trace信息---
 local basePrint = print

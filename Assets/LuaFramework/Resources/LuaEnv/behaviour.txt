@@ -1,0 +1,16 @@
+
+class('Behaviour')
+
+function AddTo(gameobject,tb)
+	local mono = gameobject:AddComponent(LuaMonoBehaviour)
+	mono.receiver = {'+=',function ( methodName,... )
+		if not tb[methodName] then
+			return
+		end
+		tb[methodName](...)
+	end}
+	return mono
+end
+
+
+classend()

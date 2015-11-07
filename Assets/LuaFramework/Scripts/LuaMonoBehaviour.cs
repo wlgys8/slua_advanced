@@ -6,46 +6,36 @@ using LuaInterface;
 [CustomLuaClass]
 public class LuaMonoBehaviour : MonoBehaviour {
 
-	void Awake(){
-		CallLuaFunction("Awake",_table);
+	public System.Action<string,object[]> receiver;
+
+
+	private void CallLuaFunction(string funcName,params object[] args){
+		if(receiver != null){
+			receiver(funcName,args);
+		}
 	}
+
 	void Start () {
-		CallLuaFunction("Start",_table);
+		CallLuaFunction("Start");
 	}
 
 	void OnDestroy(){
-		CallLuaFunction("OnDestroy",_table);
-		if(_table != null){
-			_table["__index"] = null;
-			LuaFunction func = LuaManager.Instance.L["setmetatable"] as LuaFunction;
-			func.call(_table,null);
-			_table.Dispose();
-			_table = null;
-		}
-	}
-	private void CallLuaFunction(string funcName,params object[] args){
-		if(_table != null){
-		//	_table.invoke(funcName,args);
-			LuaFunction f = (LuaFunction)_table[funcName];
-			if (f != null)
-			{
-				f.call(args);
-			}
-		}
+		CallLuaFunction("OnDestroy");
 	}
 
-	private LuaTable _table;
-
-	internal void Initlize(LuaTable table){
-		_table = table;
-		table["luaComponent"] = this;
+	void OnBecameVisible(){
+		CallLuaFunction("OnBecameVisible");
 	}
 
+	void OnBecameInvisible(){
+		CallLuaFunction("OnBecameInvisible");
+	}
 
-	public static LuaTable Add(GameObject go,LuaTable table){
-		LuaMonoBehaviour cp = go.AddComponent<LuaMonoBehaviour>();
-		cp.Initlize(table);
-		cp.CallLuaFunction("Awake",table,cp);
-		return table;
+	void OnEnable(){
+		CallLuaFunction("OnEnable");
+	}
+
+	void OnDisable(){
+		CallLuaFunction("OnDisable");
 	}
 }

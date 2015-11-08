@@ -1,7 +1,7 @@
 
-class('Behaviour')
+Behaviour = {
 
-function AddTo(gameobject,tb)
+AddTo = function (gameobject,tb)
 	local mono = gameobject:AddComponent(LuaMonoBehaviour)
 	mono.receiver = {'+=',function ( methodName,... )
 		if not tb[methodName] then
@@ -12,5 +12,4 @@ function AddTo(gameobject,tb)
 	return mono
 end
 
-
-classend()
+}

@@ -20,7 +20,7 @@ plugin{
 
 		local o = UnityEngine.GameObject()
 
-		Behaviour.AddTo(o,{
+		LBehaviour.AddTo(o,{
 
 			Start = function ( ... )
 				print('Start')
@@ -32,6 +32,10 @@ plugin{
 
 			OnDisable = function ( ... )
 				print('on disable')
+			end,
+
+			OnDestroy = function ( ... )
+				print('on OnDestroy')
 			end
 
 		})

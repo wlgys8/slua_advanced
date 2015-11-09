@@ -1,5 +1,5 @@
 
-Behaviour = {
+LBehaviour = {
 
 AddTo = function (gameobject,tb)
 	local mono = gameobject:AddComponent(LuaMonoBehaviour)

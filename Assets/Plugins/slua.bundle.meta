@@ -1,6 +1,8 @@
 fileFormatVersion: 2
-guid: 520a99e6b3adc4a3798cda88b0dee08a
+guid: 9a46ce6c04fc64757840657935951ab3
 folderAsset: yes
+timeCreated: 1442220373
+licenseType: Free
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
@@ -44,12 +46,10 @@ PluginImporter:
       enabled: 1
       settings:
         CPU: AnyCPU
-    WP8:
+    SamsungTV:
       enabled: 0
       settings:
-        CPU: AnyCPU
-        DontProcess: False
-        PlaceholderPath: 
+        STV_MODEL: STANDARD_13
     Win:
       enabled: 1
       settings:
@@ -58,13 +58,6 @@ PluginImporter:
       enabled: 1
       settings:
         CPU: AnyCPU
-    WindowsStoreApps:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-        DontProcess: False
-        PlaceholderPath: 
-        SDK: AnySDK
     iOS:
       enabled: 0
       settings:

@@ -74,6 +74,7 @@ public class LuaManager : MonoBehaviour {
 		}
 	}
 
+
 	public bool isInited{
 		get{
 			return _isInited;

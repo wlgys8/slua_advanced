@@ -145,6 +145,8 @@ We can use keywork 'class' to define a class:
 	end
 
 	classend()
+	
+	ClassA.newfiled = 1 --this will throw an error,cause we can not define new field or function any more after 'classend()'
 
 the way to use:	
 

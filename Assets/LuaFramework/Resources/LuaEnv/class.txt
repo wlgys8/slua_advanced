@@ -202,6 +202,10 @@ local function class (name,Super)
 
 		--newIndex after call ctor
 		instanceMeta.__newindex = function(_,k,v)
+			if v == nil then
+				error('Do not set a field to nil,use false instead.',3)
+				return
+			end
 			if SetInstProp(k,v) then
 				return
 			end
@@ -222,6 +226,10 @@ local function class (name,Super)
 	--classend关键字之后的环境恢复为原来的环境。以及无法再为类添加新字段、函数
 	cls.classend = function()
 		cls.__newindex = function(_,k,v)
+			if k == nil then
+				error('Do not set a field to nil,use false instead',3)
+				return
+			end
 			if SetClassProperty(k,v) then
 				return
 			end

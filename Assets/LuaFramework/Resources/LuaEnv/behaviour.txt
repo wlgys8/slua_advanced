@@ -1,15 +1,31 @@
 
-LBehaviour = {
+class 'LBehaviour'
 
-AddTo = function (gameobject,tb)
-	local mono = gameobject:AddComponent(LuaMonoBehaviour)
-	mono.receiver = {'+=',function ( methodName,params )
-		if not tb[methodName] then
-			return
-		end
-		tb[methodName](unpack(params))
-	end}
-	return mono
+
+function LBehaviour:ctor( )
+	self.gameObject = false
+	self.transform = false
 end
 
-}
+
+function AddTo(gameObject, BehaviourClass )
+	if BehaviourClass.Super ~= LBehaviour then
+		error('Only class inherits from LBehaviour could be add to gameObject',2)
+		return
+	end
+	local mono = gameObject:AddComponent(LuaMonoBehaviour)
+	local inst = BehaviourClass()
+	inst.gameObject = gameObject
+	inst.transform = gameObject.transform
+
+	mono.receiver = {'+=',function (methodName, params )
+		if not inst[methodName] then
+			return
+		end
+		inst[methodName](inst,unpack(params))
+	end}
+	return inst
+end
+
+
+classend() 

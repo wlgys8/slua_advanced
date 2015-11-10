@@ -61,12 +61,7 @@ classend()
 ClassB.ClassD = class('ClassD')
 
 
-
 classend()
-
-
-
-
 
 classend()
 

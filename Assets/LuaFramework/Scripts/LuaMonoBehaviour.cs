@@ -21,8 +21,6 @@ public class LuaMonoBehaviour : MonoBehaviour {
 
 	void OnDestroy(){
 		CallLuaFunction("OnDestroy");
-		Debug.LogError("OnDestroy");
-
 	}
 
 	void OnBecameVisible(){
@@ -30,8 +28,7 @@ public class LuaMonoBehaviour : MonoBehaviour {
 	}
 
 	void OnBecameInvisible(){
-	//	CallLuaFunction("OnBecameInvisible");
-		Debug.LogError("OnBecameInvisible");
+		CallLuaFunction("OnBecameInvisible");
 	}
 
 	void OnEnable(){
@@ -39,9 +36,7 @@ public class LuaMonoBehaviour : MonoBehaviour {
 	}
 
 	void OnDisable(){
-	//	CallLuaFunction("OnDisable");
-		Debug.LogError("OnDisable");
-
+		CallLuaFunction("OnDisable");
 	}
 
 	void OnCollisionEnter(Collision collision){

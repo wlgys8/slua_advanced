@@ -45,10 +45,10 @@ function ClassB:ctor( )
 	print 'call classB ctor'
 end
 
-function ClassB:foo( ... )
-	self.super:foo() -- call super member function
-	print 'call classB member function foo'
-end
+--function ClassB:foo( ... )
+--	self.super:foo() -- call super member function
+--	print 'call classB member function foo'
+-- end
 
 
 -- private inner class

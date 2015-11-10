@@ -167,6 +167,17 @@ local function class (name,Super)
 				v = super[k] --最后从父类里读
 				return v
 			end,
+
+			-- newIndex before call ctor,used for declare
+			__newindex = function ( _,k,v )
+				if CheckKeyWords(k) then
+					return
+				end
+				if SetInstProp(k,v) then
+					return
+				end
+				instanceContent[k] = v
+			end
 		}
 
 		instanceMeta.__tostring = function (self )
@@ -189,6 +200,7 @@ local function class (name,Super)
 			instance.super = Super(...)
 		end
 
+		--newIndex after call ctor
 		instanceMeta.__newindex = function(_,k,v)
 			if SetInstProp(k,v) then
 				return

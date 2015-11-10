@@ -69,9 +69,7 @@ local function class (name,Super)
 		return false
 	end
 
-	local clsContent = {
-
-	}
+	local clsContent = {}
 
 	local clsMeta={
 		__index = function (_,k,v)
@@ -89,16 +87,16 @@ local function class (name,Super)
 			end
 			clsContent[k] = v --否则直接设置字段
 		end,
-
-		__tostring = function ( self )
-			local meta = getmetatable(self)
-			local backup = meta.__tostring
-			meta.__tostring = nil
-			local address = tostring(self)
-			meta.__tostring = backup
-			return '[class]'..name..','..address
-		end
+		__metatable = 'protected'
 	}
+
+	clsMeta.__tostring = function ( self )
+		local backup = clsMeta.__tostring
+		clsMeta.__tostring = nil
+		local address = tostring(self)
+		clsMeta.__tostring = backup
+		return '[class]'..name..','..address
+	end
 
 	cls.Super = Super
 	cls._G = cls
@@ -148,14 +146,7 @@ local function class (name,Super)
 		end
 
 		local instanceMeta = {
-			__tostring = function (self )
-				local meta = getmetatable(self)
-				local backup = meta.__tostring
-				meta.__tostring = nil
-				local address = tostring(self)
-				meta.__tostring = backup
-				return '['..cls._className..'][Instance]'..','..address
-			end,
+			__metatable = 'protected',
 			__index = function (_,k)
 				local v = property.get[k]
 				if v then  --如果有属性，则优先读取属性的方法
@@ -176,16 +167,16 @@ local function class (name,Super)
 				v = super[k] --最后从父类里读
 				return v
 			end,
-			__newindex = function ( _,k,v )
-				if CheckKeyWords(k) then
-					return
-				end
-				if SetInstProp(k,v) then
-					return
-				end
-				instanceContent[k] = v
-			end
 		}
+
+		instanceMeta.__tostring = function (self )
+			local meta = instanceMeta
+			local backup = meta.__tostring
+			meta.__tostring = nil
+			local address = tostring(self)
+			meta.__tostring = backup
+			return '['..cls._className..'][Instance]'..','..address
+		end
 
 		setmetatable(instance,instanceMeta)
 		--如果本类没有构造函数，则默认调用父类构造函数。否则需要在本类构造函数里手动调用父类构造函数

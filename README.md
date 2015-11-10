@@ -156,3 +156,29 @@ the way to use:
     a:foo()
 
 ##How to receive MonoBehaviour Messages?
+Use LBehaviour.
+
+LBehaviour works like MonoBehaviour in lua. It can be added to gameObject and receive MonoBehaviour messages.
+
+	class('MyBehaviour' ,LBehaviour)
+
+		function MyBehaviour:Start()
+			print('Start')
+		end
+		
+		function MyBehaviour:OnEnable ()
+			print('on enable')
+		end
+
+		function MyBehaviour:OnDisable()
+			print('on disable')
+		end
+
+		function MyBehaviour:OnDestroy (  )
+			print('on destroy')
+		end
+
+
+	classend()
+
+	LBehaviour.AddTo(gameObject,MyBehaviour)

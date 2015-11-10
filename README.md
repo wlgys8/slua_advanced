@@ -160,6 +160,8 @@ Use LBehaviour.
 
 LBehaviour works like MonoBehaviour in lua. It can be added to gameObject and receive MonoBehaviour messages.
 
+Update callback was not provided in consideration of the performance.
+
 	class('MyBehaviour' ,LBehaviour)
 
 		function MyBehaviour:Start()

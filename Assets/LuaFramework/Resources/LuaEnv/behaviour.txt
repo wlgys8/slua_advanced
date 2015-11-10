@@ -3,11 +3,11 @@ LBehaviour = {
 
 AddTo = function (gameobject,tb)
 	local mono = gameobject:AddComponent(LuaMonoBehaviour)
-	mono.receiver = {'+=',function ( methodName,... )
+	mono.receiver = {'+=',function ( methodName,params )
 		if not tb[methodName] then
 			return
 		end
-		tb[methodName](...)
+		tb[methodName](unpack(params))
 	end}
 	return mono
 end

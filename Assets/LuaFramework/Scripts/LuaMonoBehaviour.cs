@@ -67,4 +67,8 @@ public class LuaMonoBehaviour : MonoBehaviour {
 	void OnCollisionStay2D(Collision2D co){
 		CallLuaFunction("OnCollisionStay2D",co);
 	}
+
+	void OnLevelWasLoaded(int level){
+		CallLuaFunction("OnLevelWasLoaded",level);
+	}
 }

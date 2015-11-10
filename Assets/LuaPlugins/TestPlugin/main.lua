@@ -20,25 +20,28 @@ plugin{
 
 		local o = UnityEngine.GameObject()
 
-		LBehaviour.AddTo(o,{
+		class('LB' ,LBehaviour)
 
-			Start = function ( ... )
+			function LB:Start()
 				print('Start')
-			end,
+			end
 			
-			OnEnable = function ( ... )
+			function LB:OnEnable ()
 				print('on enable')
-			end,
+			end
 
-			OnDisable = function ( ... )
+			function LB:OnDisable()
 				print('on disable')
-			end,
+			end
 
-			OnDestroy = function ( ... )
+			function LB:OnDestroy (  )
 				print('on OnDestroy')
 			end
 
-		})
+
+		classend()
+
+		LBehaviour.AddTo(o,LB)
 
 	end,
 

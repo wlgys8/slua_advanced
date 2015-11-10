@@ -56,6 +56,13 @@ Structure：
 				"Plugin2",
 			}
 		}
+##How to require moduels
+Framework provide a keyword `use`,it is almost the same as `require`. What's the difference between them is:
+
+`use` will provide a special ENV for the file it loads. In this ENV, we can not define new global var implicitly. The limitation could help us to avoid global namespace pollution.
+
+
+
 ##How to share code between plugins (插件之间的互相访问)
 
 ##How to build plugins as assetBundles (如何打包成AssetsBundle)

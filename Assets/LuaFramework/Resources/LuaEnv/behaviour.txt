@@ -1,7 +1,6 @@
 
 class 'LBehaviour'
 
-
 function LBehaviour:ctor( )
 	self.gameObject = false
 	self.transform = false
@@ -29,3 +28,5 @@ end
 
 
 classend() 
+
+

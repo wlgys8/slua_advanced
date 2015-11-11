@@ -30,17 +30,17 @@ local function CheckKeyWords(word)
 	return false
 end
 
-local function class (name,Super)
-	
-	if not name  then
-		error('class must have a name.',2)
-		return
-	end
+local class = {}
+setmetatable(class,class)
+
+
+class.__call = function (_,name,Super)
+	local anonymous = name and true or false
 	local G = getfenv(2) --获取上一级的环境
 
 	--检查是否存在同名类
 	G._classes = G._classes or {}
-	if G._classes[name] then
+	if name and G._classes[name] then
 		error('class has been defined. className = '..name,2)
 		return
 	end
@@ -56,7 +56,7 @@ local function class (name,Super)
 
 	local cls = {
 		_classes = {},
-		_className = name,
+		_className = name or 'anonymous',
 		property = property ,
 	}
 
@@ -95,13 +95,16 @@ local function class (name,Super)
 		clsMeta.__tostring = nil
 		local address = tostring(self)
 		clsMeta.__tostring = backup
-		return '[class]'..name..','..address
+		return '[class]'..cls._className..','..address
 	end
 
 	cls.Super = Super
 	cls._G = cls
 	setmetatable(cls,clsMeta)
-	G._classes[name] = cls
+
+	if name then
+		G._classes[name] = cls
+	end
 
 	local clsEnv = {
 		__index = function (_,k)
@@ -242,8 +245,21 @@ local function class (name,Super)
 		setfenv(2,G)
 	end
 
+	if name then
 	--将类导出到上一级环境
-	rawset(G,name,cls)
+		rawset(G,name,cls)
+	end
+	return cls
+end
+
+
+-- another way to define class
+class.new = function(name,Super,tb)
+	local cls = class(name,Super)
+	for k,v in pairs(tb) do
+		cls[k] = v
+	end
+	classend()
 	return cls
 end
 

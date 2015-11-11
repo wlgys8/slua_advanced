@@ -41,7 +41,17 @@ plugin{
 
 		classend()
 
-		LBehaviour.AddTo(o,MyBehaviour)
+		-- anonymous class
+		LBehaviour.AddTo(o,class.new(false,LBehaviour,{
+			Start = function (self)
+				print('Start')
+			end
+
+
+		}))
+
+
+
 
 	end,
 

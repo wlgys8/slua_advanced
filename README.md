@@ -155,7 +155,23 @@ We can use keywork 'class' to define a class:
 	
 	ClassA.newfiled = 1 --this will throw an error,cause we can not define new field or function any more after 'classend()'
 
-the way to use:	
+another way to define a class:
+
+		class.new('ClassB',BaseClass,{
+			ctor = function(self)
+			end,
+			
+			foo = function(self)
+			end,
+		})
+		
+define an anonymous class:
+
+		local annoy = class.new(false,nil,{
+			ctor = function(self)
+			end
+		})
+usage:	
 
 调用方式:
 

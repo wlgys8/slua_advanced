@@ -1,0 +1,45 @@
+class 'LCoroutine'
+
+function LCoroutine:ctor(func)
+	self.mono = GameObject('monoCoroutine'):AddComponent(LuaCoroutine)
+end
+
+function LCoroutine:create(func)
+	local co 
+	local baseEnv = getfenv(func)
+	local funcEnv = {
+		__index = baseEnv,
+		yield = function( ... )
+			self:yield(co,...)
+		end,
+	}
+	setmetatable(funcEnv,funcEnv)
+	setfenv(func,funcEnv)
+	co = coroutine.create(func)
+	
+	return co
+end
+
+function LCoroutine:yield(co,instruction)
+	self.mono:ExecuteWhen(instruction,function ()
+		coroutine.resume(co)
+	end)
+	coroutine.yield()
+
+end
+
+function LCoroutine:resume(co,...)
+	coroutine.resume(co,...)
+end
+
+function LCoroutine:clear( )
+	self.mono:StopAllCoroutines()
+end
+
+function LCoroutine:destroy( ... )
+	LuaCoroutine.Destroy(self.mono.gameObject)
+end
+
+
+
+classend()

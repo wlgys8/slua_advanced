@@ -23,6 +23,7 @@ end
 --static function
 function ClassA.foo2( ... )
 	print 'call classAstatic function foo2'
+	print(Global['ClassB'])
 end
 
 --also static function

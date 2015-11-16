@@ -121,6 +121,7 @@ class.__call = function (_,name,Super)
 			cls[k] = v
 		end
 	}
+	clsEnv._G = clsEnv
 	setmetatable(clsEnv,clsEnv)
 	--设置class关键字之后的环境
 	setfenv(2,clsEnv)

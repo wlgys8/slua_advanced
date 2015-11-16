@@ -49,6 +49,7 @@ public class LuaManager : MonoBehaviour {
 		}
 	}
 	public IEnumerator Start(){
+		GameObject.DontDestroyOnLoad(gameObject);
 		if(!autoBoot){
 			yield break;
 		}

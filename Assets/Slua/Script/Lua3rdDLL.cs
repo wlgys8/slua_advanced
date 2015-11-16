@@ -9,10 +9,6 @@ public static class Lua3rdDLL{
 	static Lua3rdDLL(){
 		// LuaSocketDLL.Reg(DLLRegFuncs);
 	}
-
-	public static void Register(string name,LuaCSFunction func){
-			DLLRegFuncs.Add(name,func);
-		}
 	
 	public static void open(IntPtr L){
 		if(DLLRegFuncs.Count == 0){

@@ -5,3 +5,5 @@ Temp/*
 *.sln
 *.userprefs
 Assets/Slua/LuaObject*
+Assets/Output*
+Assets/StreamingAssets*

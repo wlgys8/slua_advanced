@@ -17,4 +17,9 @@ public static class LuaScriptCreater {
 		File.WriteAllText(path,"",System.Text.Encoding.UTF8);
 		AssetDatabase.Refresh(ImportAssetOptions.Default);
 	}
+
+	[MenuItem("Tools/Document_LuaFramework")]
+	public static void OpenDoc(){
+		Application.OpenURL("https://github.com/wlgys8/UniSLuaPF/blob/master/README.md");
+	}
 }

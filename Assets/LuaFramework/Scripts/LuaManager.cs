@@ -134,6 +134,7 @@ public class LuaManager : MonoBehaviour {
 				}
 			}
 			else{
+				pluginName = pluginName.ToLower();
 				TextAsset txt = bundleManager.LoadAsset<TextAsset>(pluginName,fullPath+".lua.txt");
 				return txt.bytes;
 			}
@@ -182,6 +183,7 @@ public class LuaManager : MonoBehaviour {
 		if(actualRunMode == LuaRunMode.Editor){
 			return File.Exists(fullPath+".lua");
 		}else{
+			pluginName = pluginName.ToLower();
 			return bundleManager.Contains(pluginName,fullPath+".lua.txt");
 		}
 	}

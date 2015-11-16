@@ -31,7 +31,6 @@ public class AssetBundleManager : MonoBehaviour{
 	/// </summary>
 
 	public void AddURL(string bundleName,string url){
-		bundleName = bundleName.ToLower();
 		_urlMap.Add(bundleName,url);
 	}
 
@@ -105,7 +104,6 @@ public class AssetBundleManager : MonoBehaviour{
 	}
 
 	public Request LoadAssetBundle(string bundleName){
-		bundleName = bundleName.ToLower();
 		if(isDebugOn){
 			Debug.Log(string.Format("Load {0},bundleName = {1}",bundleName,bundleName));
 		}
@@ -134,7 +132,6 @@ public class AssetBundleManager : MonoBehaviour{
 		if(_urlMap.ContainsKey(bundleName)){
 			url = _urlMap[bundleName];
 		}else{
-			bundleName = bundleName.ToLower();
 			url = streamingAssetsPath+"/"+bundleName;
 		}
 		return url;
@@ -163,7 +160,6 @@ public class AssetBundleManager : MonoBehaviour{
 
 
 	public T LoadAsset<T>(string bundleName,string fileName) where T:Object{
-		bundleName = bundleName.ToLower();
 		if(!_loaded.ContainsKey(bundleName)){
 			Debug.LogError(bundleName + " should be loaded first");
 			return null;
@@ -172,7 +168,6 @@ public class AssetBundleManager : MonoBehaviour{
 	}
 
 	public bool Contains(string bundleName,string fileName){
-		bundleName = bundleName.ToLower();
 		if(!_loaded.ContainsKey(bundleName)){
 			return false;
 		}

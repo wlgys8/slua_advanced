@@ -207,3 +207,29 @@ Update callback was not provided in consideration of the performance.
 	classend()
 
 	LBehaviour.AddTo(gameObject,MyBehaviour)
+	
+##Coroutine
+Slua支持在lua里使用coroutine. 但在某些情况下，coroutine并不能很好的满足我们的需求。比如:
+
+* 无法停止一个thread.
+* 场景销毁后，coroutine仍在执行.
+
+针对这些情况，框架提供了另一个coroutine的实现:LCoroutine.
+
+用例:
+
+		local coroutine = LCoroutine() --create an instance
+		local co = coroutine:create(function() 
+			yield(WaitForSeconds(1)) 
+			coroutine:clear()  --supprot clear
+			coroutine:destroy()  --support destroy
+			end
+			)
+		coroutine:resume(co)
+
+通过`local coroutine = LCoroutine()`可以创建一个LCoroutine实例，每个实例运行在独立的MonoBehaviour上。
+
+通过`coroutine:destroy()` 可以手动销毁这个LCoroutine,其对应的task均会停止执行.
+
+也可通过`coroutine:clear() ` 清除这个LCoroutine上的所有任务。
+

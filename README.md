@@ -219,10 +219,13 @@ Slua支持在lua里使用coroutine. 但在某些情况下，coroutine并不能�
 用例:
 
 		local coroutine = LCoroutine() --create an instance
-		local co = coroutine:create(function() 
-			yield(WaitForSeconds(1)) 
+		-- local coroutine = LCoroutine(gameObject) --create an instance bind to target gameObject
+		
+		local co = coroutine:create(function() --create an thread on coroutine
+			yield(WaitForSeconds(1))  -- yield
 			coroutine:clear()  --supprot clear
-			coroutine:destroy()  --support destroy
+			coroutine:destroy()  --only destroy LuaCoroutine MonoBehaviour
+		--	coroutine:destroy(true) --destroy gameObject
 			end
 			)
 		coroutine:resume(co)

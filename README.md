@@ -56,6 +56,9 @@ Structure：
 				"Plugin2",
 			}
 		}
+		
+What if i don't want put my lua code under LuaPlugins? Yes, you can add plugin search path to LuaManager on it's inspector.
+
 ##How to require moduels
 Framework provide a keyword `use`,it is almost the same as `require`. What's the difference between them is:
 
@@ -235,4 +238,3 @@ Slua支持在lua里使用coroutine. 但在某些情况下，coroutine并不能�
 通过`coroutine:destroy()` 可以手动销毁这个LCoroutine,其对应的task均会停止执行.
 
 也可通过`coroutine:clear() ` 清除这个LCoroutine上的所有任务。
-

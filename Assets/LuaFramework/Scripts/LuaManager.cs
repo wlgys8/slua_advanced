@@ -22,17 +22,37 @@ public enum LuaRunMode{
 
 
 public class LuaManager : MonoBehaviour {
-
 	public const string PluginRoot = "Assets/LuaPlugins";
 
 	[Tooltip("In editor mode,luaManager will load lua file directly from editor." +
 		"All modifications on file will be work immediately." +
 	    "In AssetBundle mode,luaManager will load lua file from assetbundle." +
-	    "If some files were changed,they should be rebuilt as assetbundles to make the modifications work.")]
+	    "If some files were changed,they should be rebuilt again to make the modifications work.")]
 	public LuaRunMode mode = LuaRunMode.Editor;
+
+	/// <summary>
+	/// This search paths only work in editor.
+	/// </summary>
+	public string[] pluginSearchPathInEditor = new string[]{
+		"Assets/LuaPlugins"
+	};
+
+	/// <summary>
+	/// If autoBoot was set to false,you should boot the manager by yourself.
+	/// Setup->LoadAllPlugins->LaunchPlugin
+	/// </summary>
 	public bool autoBoot = false;
 
+	/// <summary>
+	/// Each plugin is an assetsbundle.
+	/// </summary>
 	private AssetBundleManager _pluginBundleManager;
+
+
+	/// <summary>
+	/// Map plugin name to its path
+	/// </summary>
+	private Dictionary<string,string> _pluginNameToPath = new Dictionary<string, string>();
 
 	private LuaSvr _svr;
 
@@ -115,13 +135,33 @@ public class LuaManager : MonoBehaviour {
 			}
 			return asset.bytes;
 		}
+	}
 
+	// for editor mode
+	private string SearchPluginPath(string pluginName){
+		if(_pluginNameToPath.ContainsKey(pluginName)){
+			return _pluginNameToPath[pluginName];
+		}
+		for(int i = 0;i<this.pluginSearchPathInEditor.Length;i++){
+			string searchPath = this.pluginSearchPathInEditor[i];
+			string pluginPath = System.IO.Path.Combine(searchPath,pluginName);
+			string mainFilePath = System.IO.Path.Combine(pluginPath,"main.lua");
+			if(System.IO.Directory.Exists(pluginPath) && File.Exists(mainFilePath)){
+				_pluginNameToPath.Add(pluginName,pluginPath);
+				return pluginPath;
+			}
+		}
+		return null;
 	}
 
 	private byte[] LoadFileFromPlugin(string pluginName,string fileName){
 		try{
-			string prefix =  PluginRoot;
-			string fullPath = prefix + "/"+ pluginName + "/"+fileName;
+			string pluginPath = SearchPluginPath(pluginName);
+			if(pluginPath == null){
+				Debug.LogError("Can not find a plugin named "+pluginName);
+				return null;
+			}
+			string fullPath = System.IO.Path.Combine(pluginPath,fileName); 
 			if(actualRunMode == LuaRunMode.Editor){
 				try{
 					byte[] ret =  File.ReadAllBytes(fullPath+".lua");
@@ -179,8 +219,11 @@ public class LuaManager : MonoBehaviour {
 
 	
 	public bool ExistFile(string pluginName,string fileName){
-		string prefix = PluginRoot;
-		string fullPath = prefix +"/"+ pluginName + "/"+fileName;
+		string pluginPath = SearchPluginPath(pluginName);
+		if(pluginPath == null){
+			return false;
+		}
+		string fullPath = System.IO.Path.Combine(pluginPath,fileName);
 		if(actualRunMode == LuaRunMode.Editor){
 			return File.Exists(fullPath+".lua");
 		}else{
@@ -191,12 +234,17 @@ public class LuaManager : MonoBehaviour {
 
 	public string[] GetPluginList(){
 		if(actualRunMode == LuaRunMode.Editor){
-			string[] dirs = Directory.GetDirectories(PluginRoot);
-			for(int i = 0;i<dirs.Length;i++){
-				
-				dirs[i] = Path.GetFileName(dirs[i]);
+			List<string> pluginNames = new List<string>();
+			for(int i = 0;i<pluginSearchPathInEditor.Length;i++){
+				string searchPath = pluginSearchPathInEditor[i];
+				string[] dirs = Directory.GetDirectories(searchPath);
+				foreach(string path in dirs){
+					if(File.Exists(Path.Combine(path,"main.lua"))){
+						pluginNames.Add(Path.GetFileName(path));
+					}
+				}
 			}
-			return dirs;
+			return pluginNames.ToArray();
 		}
 		else{
 			List<string> names = bundleManager.loadedBundleNames;

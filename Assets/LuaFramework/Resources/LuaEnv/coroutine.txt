@@ -1,7 +1,9 @@
 class 'LCoroutine'
-
-function LCoroutine:ctor(func)
-	self.mono = GameObject('monoCoroutine'):AddComponent(LuaCoroutine)
+local GameObject = UnityEngine.GameObject
+function LCoroutine:ctor(gameObject)
+	local  gameObject = gameObject or GameObject('LCoroutine')
+	self.mono = gameObject:AddComponent(LuaCoroutine)
+	self.gameObject = gameObject
 end
 
 function LCoroutine:create(func)
@@ -36,10 +38,12 @@ function LCoroutine:clear( )
 	self.mono:StopAllCoroutines()
 end
 
-function LCoroutine:destroy( ... )
-	LuaCoroutine.Destroy(self.mono.gameObject)
+function LCoroutine:destroy(isGameObject)
+	if isGameObject then
+		LuaCoroutine.Destroy(self.gameObject)
+	else
+		LuaCoroutine.Destroy(self.mono)
+	end
 end
-
-
 
 classend()

@@ -48,6 +48,7 @@ local function doPlugin(name, onComplete)
 	end
 
 	local co = coroutine.create(function ()
+		print ('start load plugin '..name)
 		while not plugins[name] do --until doPlugin completed
 			UnityEngine.Yield()
 		end
@@ -73,8 +74,6 @@ plugin = function(table)
 		error('plugin need a main func',2)
 		return
 	end
-
-
 
 	local run = function ( ... )
 
@@ -173,7 +172,7 @@ end
 
   
 
-local function LoadAllPlugins()
+local function DoAllPlugins()
 	local plugins = LuaPluginUtil.GetPluginList()
 	local co = coroutine.create(function(co)
 		for i,name in ipairs(plugins) do
@@ -193,5 +192,5 @@ local function LoadAllPlugins()
 	coroutine.resume(co,co)
 end 
 
-LoadAllPlugins()
+DoAllPlugins()
 

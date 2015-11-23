@@ -7,3 +7,5 @@ Temp/*
 Assets/Slua/LuaObject*
 Assets/Output*
 Assets/StreamingAssets*
+Assets/Plugins/Slua_Managed/Unity
+Assets/Plugins/Slua_Managed/Unity.meta

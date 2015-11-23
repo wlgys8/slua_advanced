@@ -68,13 +68,13 @@ namespace SLua
 					System.Diagnostics.Process.Start("debugger\\win\\ldb.exe", string.Format("-host {0} -port {1}", ip, port));
 #else
 					System.Diagnostics.ProcessStartInfo proc = new System.Diagnostics.ProcessStartInfo();
-					proc.FileName = "ldb";
+					proc.FileName = "bash";
 					proc.WorkingDirectory = "debugger/mac";
-					// I don't know why can't start process with arguments on MacOSX
-					// I just keep arguments empty????
-					proc.Arguments = "";//string.Format("-host {0} -port {1}", ip, port);
+					proc.Arguments =  @"-c ""./runldb.sh {0} {1} """;
+					proc.Arguments = string.Format(proc.Arguments,ip,port);
 					proc.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-					proc.CreateNoWindow = true;
+					proc.CreateNoWindow = false;
+					proc.UseShellExecute = true;
 					System.Diagnostics.Process.Start(proc);
 #endif
 				}
@@ -112,12 +112,16 @@ namespace SLua
 			
 			static Startup()
 			{
-				bool ok = System.IO.Directory.Exists(Path);
+			}
+
+			[UnityEditor.Callbacks.DidReloadScripts]
+			public static void OnDidReloadScripts(){
+				bool ok = System.IO.Directory.Exists(SLuaSetting.Instance.UnityEngineGeneratePath);
 				if (!ok && EditorUtility.DisplayDialog("Slua", "Not found lua interface for Unity, generate it now?", "Generate", "No"))
 				{
 					GenerateAll();
 				}
-			}
+			} 
 		}
 	
 		[MenuItem("SLua/All/Make")]
@@ -149,7 +153,7 @@ namespace SLua
 			CustomExport.OnGetUseList(out uselist);
 			
 			List<Type> exports = new List<Type>();
-            string path = Path + "Unity/";
+			string path = SLuaSetting.Instance.UnityEngineGeneratePath;
 			foreach (Type t in types)
 			{
 				if (filterType(t, noUseList, uselist) && Generate(t, path))
@@ -201,7 +205,7 @@ namespace SLua
 			Type[] types = assembly.GetExportedTypes();
 			
 			List<Type> exports = new List<Type>();
-            string path = Path + "Unity/";
+			string path = SLuaSetting.Instance.UnityEngineGeneratePath;
 			foreach (Type t in types)
 			{
 				if (filterType(t,noUseList,uselist) && Generate(t,path))
@@ -215,11 +219,18 @@ namespace SLua
 			    AssetDatabase.Refresh();
 			Debug.Log("Generate UI interface finished");
 		}
+
+		static String FixPathName(string path) {
+			if(path.EndsWith("\\") || path.EndsWith("/")) {
+				return path.Substring(0,path.Length-1);
+			}
+			return path;
+		}
 		
-		[MenuItem("SLua/Unity/Clear Uinty UI")]
-		static public void ClearUnity()
+		[MenuItem("SLua/Unity/Clear Unity UI")]
+		static public void ClearUnityUI()
 		{
-			clear(new string[] { Path + "Unity" });
+			clear(new string[] { FixPathName(SLuaSetting.Instance.UnityEngineGeneratePath) });
 			Debug.Log("Clear Unity & UI complete.");
 		}
 		
@@ -360,7 +371,7 @@ namespace SLua
 		[MenuItem("SLua/All/Clear")]
 		static public void ClearALL()
 		{
-			clear(new string[] { Path.Substring(0, Path.Length - 1) });
+			clear(new string[] { FixPathName(Path),FixPathName(SLuaSetting.Instance.UnityEngineGeneratePath) });
 			Debug.Log("Clear all complete.");
 		}
 		
@@ -371,6 +382,7 @@ namespace SLua
 				foreach (string path in paths)
 				{
 					System.IO.Directory.Delete(path, true);
+					AssetDatabase.DeleteAsset(path);
 				}
 			}
 			catch
@@ -502,7 +514,7 @@ namespace SLua
 		public void GenerateBind(List<Type> list, string name, int order)
 		{
 			HashSet<Type> exported = new HashSet<Type>();
-			string f = path + name + ".cs";
+			string f = System.IO.Path.Combine(path , name + ".cs");
 			StreamWriter file = new StreamWriter(f, false, Encoding.UTF8);
 			file.NewLine = NewLine;
 			Write(file, "using System;");
@@ -602,26 +614,10 @@ namespace SLua
 			return false;
 		}
 
-		string GetDefaultValue(System.Type type){
-			string defaultRet = "";
-			if(type.IsByRef){
-				type = type.GetElementType();
-			}
-			if(type == typeof(System.Char)){
-				return @"' '";
-			}
-			if(type != typeof(void)){
-				defaultRet = "null";
-				if(type.IsValueType){
-					defaultRet = System.Activator.CreateInstance(type).ToString().ToLower();
-				}
-			}
-			return defaultRet;
-		}
 
 		void WriteDelegate(Type t, StreamWriter file)
 		{
-			System.Text.StringBuilder temp =  new System.Text.StringBuilder(@"
+			string temp = @"
 using System;
 using System.Collections.Generic;
 using LuaInterface;
@@ -655,28 +651,18 @@ namespace SLua
 			l = LuaState.get(l).L;
             ua = ($ARGS) =>
             {
-				if(LuaState.main == null){");
-
-			MethodInfo mi = t.GetMethod("Invoke");
+                int error = pushTry(l);
+";
 			
+			temp = temp.Replace("$TN", t.Name);
+			temp = temp.Replace("$FN", SimpleType(t));
+			MethodInfo mi = t.GetMethod("Invoke");
 			List<int> outindex = new List<int>();
 			List<int> refindex = new List<int>();
-			temp.Replace("$ARGS", ArgsList(mi, ref outindex, ref refindex));
-			temp.Replace("$TN", t.Name);
-			temp.Replace("$FN", SimpleType(t));
-			Write(file, temp.ToString());
-
-			this.indent=5;
-			for (int n = 0; n < mi.GetParameters().Length; n++)
-			{
-				if (outindex.Contains(n))
-					Write(file, "a{0} = {1} ; // type = {2}", n + 1,GetDefaultValue(mi.GetParameters()[n].ParameterType),mi.GetParameters()[n].ParameterType.Name);
-			}
-			Write(file,"return {0} ;",GetDefaultValue(mi.ReturnType));
-			Write(file,"//"+GetDefaultValue(mi.ReturnType));
-			Write(file,"}");
-			Write(file,"int error = pushTry(l);");
-
+			temp = temp.Replace("$ARGS", ArgsList(mi, ref outindex, ref refindex));
+			Write(file, temp);
+			
+			this.indent = 4;
 			
 			for (int n = 0; n < mi.GetParameters().Length; n++)
 			{
@@ -1407,6 +1393,9 @@ namespace SLua
 		
 		bool DontExport(MemberInfo mi)
 		{
+		    var methodString = string.Format("{0}.{1}", mi.DeclaringType, mi.Name);
+		    if (CustomExport.FunctionFilterList.Contains(methodString))
+		        return true;
 			return mi.GetCustomAttributes(typeof(DoNotToLuaAttribute), false).Length > 0;
 		}
 		

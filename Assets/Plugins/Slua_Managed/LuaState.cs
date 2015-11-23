@@ -933,8 +933,8 @@ end
 			}
 		}
 
-
-		internal object getObject(string key)
+		//TODO: changed internal to public by qzm
+		public object getObject(string key)
 		{
 			LuaDLL.lua_pushglobaltable(L);
 			object o = getObject(key.Split(new char[] { '.' }));

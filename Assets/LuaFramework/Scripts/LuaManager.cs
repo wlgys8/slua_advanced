@@ -58,6 +58,11 @@ public class LuaManager : MonoBehaviour {
 
 	private bool _isInited = false;
 
+	/// <summary>
+	/// Plugins those in this list will be ignored by manager.
+	/// </summary>
+	[SerializeField,HideInInspector]
+	public List<string> ignorePlugins = new List<string>();
 
 	public LuaRunMode actualRunMode{
 		get{
@@ -156,6 +161,9 @@ public class LuaManager : MonoBehaviour {
 
 	private byte[] LoadFileFromPlugin(string pluginName,string fileName){
 		try{
+			if(actualRunMode == LuaRunMode.AssetBundle){
+				pluginName = pluginName.ToLower();
+			}
 			string pluginPath = SearchPluginPath(pluginName);
 			if(pluginPath == null){
 				Debug.LogError("Can not find a plugin named "+pluginName);
@@ -175,7 +183,7 @@ public class LuaManager : MonoBehaviour {
 				}
 			}
 			else{
-				pluginName = pluginName.ToLower();
+
 				TextAsset txt = bundleManager.LoadAsset<TextAsset>(pluginName,fullPath+".lua.txt");
 				return txt.bytes;
 			}
@@ -195,6 +203,16 @@ public class LuaManager : MonoBehaviour {
 		yield return bundleManager.StartCoroutine(req.WaitUntilDone());
 		req = bundleManager.LoadAllAssetBundles();
 		yield return bundleManager.StartCoroutine(req.WaitUntilDone());
+		foreach(string pluginName in bundleManager.loadedBundleNames){
+			foreach(string searchPath in pluginSearchPathInEditor){
+				string pluginPath = Path.Combine(searchPath,pluginName);
+				string mainPath = Path.Combine(pluginPath,"main.lua.txt"); // for assetbundle
+				if(bundleManager.Contains(pluginName,mainPath)){
+					_pluginNameToPath.Add(pluginName,pluginPath); // find path to pluginName
+					break;
+				}
+			}
+		}
 	}
 	
 	public Coroutine LoadAllPlugins(){
@@ -219,6 +237,9 @@ public class LuaManager : MonoBehaviour {
 
 	
 	public bool ExistFile(string pluginName,string fileName){
+		if(actualRunMode == LuaRunMode.AssetBundle){
+			pluginName = pluginName.ToLower();
+		}
 		string pluginPath = SearchPluginPath(pluginName);
 		if(pluginPath == null){
 			return false;
@@ -227,12 +248,12 @@ public class LuaManager : MonoBehaviour {
 		if(actualRunMode == LuaRunMode.Editor){
 			return File.Exists(fullPath+".lua");
 		}else{
-			pluginName = pluginName.ToLower();
 			return bundleManager.Contains(pluginName,fullPath+".lua.txt");
 		}
 	}
 
-	public string[] GetPluginList(){
+	public string[] GetPluginList(bool containsIgnored = false){
+
 		if(actualRunMode == LuaRunMode.Editor){
 			List<string> pluginNames = new List<string>();
 			for(int i = 0;i<pluginSearchPathInEditor.Length;i++){
@@ -243,6 +264,11 @@ public class LuaManager : MonoBehaviour {
 						pluginNames.Add(Path.GetFileName(path));
 					}
 				}
+			}
+			if(!containsIgnored){
+				pluginNames.RemoveAll(delegate(string obj) {
+					return this.ignorePlugins.Contains(obj);
+				});
 			}
 			return pluginNames.ToArray();
 		}

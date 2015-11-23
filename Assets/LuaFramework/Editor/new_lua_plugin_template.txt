@@ -1,0 +1,14 @@
+
+plugin{
+	-- plugin name must be the same as folder name.
+	name = '#PLUGINNAME#',
+
+	-- depend any other plugin?
+	dependencies = {
+	},
+
+	-- entry function for plugin.
+	main = function ( ... )
+	end,
+
+}

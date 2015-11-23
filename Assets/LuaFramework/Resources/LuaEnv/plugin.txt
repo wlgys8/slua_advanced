@@ -16,7 +16,10 @@ end
 local loadPluginFile = function ( pluginName,fileName)
 	local fullUrl = 'plug://'..pluginName..'/'..fileName
 	if LuaPluginUtil.ExistFile(pluginName,fileName) then
-		local f = assert(loadfile(fullUrl))
+		local f = loadfile(fullUrl)
+	--	if not f then
+	--		error(fullUrl..' do not exist!',2)
+	--	end
 		return f
 		--[[
 		local success,ret =  pcall(loadfile,fullUrl)

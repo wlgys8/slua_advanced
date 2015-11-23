@@ -1,0 +1,10 @@
+---
+--- class #SCRIPTNAME#
+-- @classmod #SCRIPTNAME#
+class('#SCRIPTNAME#')
+
+---Constructor
+function #SCRIPTNAME#:ctor( ... )
+end
+
+classend()

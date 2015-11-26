@@ -1,3 +1,8 @@
+TODO:
+
+* support require file by relative path.
+
+
 # UniSLuaPF
 Plugin framework based on Unity+SLua
 基于Unity和Slua的游戏开发框架

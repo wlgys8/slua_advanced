@@ -58,6 +58,14 @@ public class LuaManager : MonoBehaviour {
 
 	private bool _isInited = false;
 
+
+	public enum IgnoreMode{
+		Selected, //ignore selected plugins
+		Except, //ignore all except selected plugins
+		None,// ignore none of plugins.
+	}
+
+	public IgnoreMode ignoreMode = IgnoreMode.Except;
 	/// <summary>
 	/// Plugins those in this list will be ignored by manager.
 	/// </summary>
@@ -258,6 +266,10 @@ public class LuaManager : MonoBehaviour {
 			List<string> pluginNames = new List<string>();
 			for(int i = 0;i<pluginSearchPathInEditor.Length;i++){
 				string searchPath = pluginSearchPathInEditor[i];
+				if(!Directory.Exists(searchPath)){
+					Debug.LogWarningFormat("Search path doest not exist:{0}",searchPath);
+					continue;
+				}
 				string[] dirs = Directory.GetDirectories(searchPath);
 				foreach(string path in dirs){
 					if(File.Exists(Path.Combine(path,"main.lua"))){
@@ -265,9 +277,14 @@ public class LuaManager : MonoBehaviour {
 					}
 				}
 			}
-			if(!containsIgnored){
+			if(!containsIgnored && ignoreMode!= IgnoreMode.None){
 				pluginNames.RemoveAll(delegate(string obj) {
-					return this.ignorePlugins.Contains(obj);
+					if(ignoreMode == IgnoreMode.Selected){
+						return this.ignorePlugins.Contains(obj);
+					}else{
+						return !this.ignorePlugins.Contains(obj);
+					}
+
 				});
 			}
 			return pluginNames.ToArray();

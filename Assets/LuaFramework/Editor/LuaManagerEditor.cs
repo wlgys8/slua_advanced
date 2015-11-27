@@ -10,7 +10,7 @@ public class LuaManagerEditor : Editor {
 	{
 		base.OnInspectorGUI ();
 		LuaManager manager = target as LuaManager;
-		_includeFoldout = EditorGUILayout.Foldout(_includeFoldout,"Include Plugins");
+		_includeFoldout = EditorGUILayout.Foldout(_includeFoldout,"Ignore Plugins");
 		if(_includeFoldout){
 			foreach(string plugin in _plugins){
 				EditorGUILayout.BeginHorizontal();

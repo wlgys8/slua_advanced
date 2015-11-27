@@ -9,13 +9,13 @@ public static class LuaEditorUtility {
 
 	[MenuItem("Assets/Lua/Create Class")]
 	public static void CreateNewLuaScript(){
-		string folder = AssetDatabase.GetAssetPath(Selection.activeObject);
-		if(!Directory.Exists(folder)){
-			folder = System.IO.Path.GetDirectoryName(folder);
+		string folder = GetSelectFolder();
+		if(string.IsNullOrEmpty(folder)){
+			Debug.LogError("Please select a folder!");
+			return;
 		}
-		var DoCreateScriptAsset = Type.GetType("UnityEditor.ProjectWindowCallback.DoCreateScriptAsset, UnityEditor");
 		ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0,
-		       ScriptableObject.CreateInstance(DoCreateScriptAsset) as UnityEditor.ProjectWindowCallback.EndNameEditAction,
+		       ScriptableObject.CreateInstance(typeof(DoCreateLuaAsset)) as UnityEditor.ProjectWindowCallback.EndNameEditAction,
 		                                                        folder+"/NewLuaScript.lua",null,
 		                                                        "Assets/LuaFramework/Editor/new_lua_file_template.txt");
 	}
@@ -28,19 +28,21 @@ public static class LuaEditorUtility {
 		AssetDatabase.Refresh(ImportAssetOptions.Default);
 	}
 
-	[MenuItem("Assets/Lua/Create Plugin")]
-	public static void CreateLuaPlugin(){
+	private static string GetSelectFolder(){
 		string folder = null;
-		UnityEngine.Object[] objects = Selection.GetFiltered(typeof(UnityEngine.Object),SelectionMode.TopLevel|SelectionMode.Assets
-		                                                     );
-		Debug.LogError(objects.Length);
+		UnityEngine.Object[] objects = Selection.GetFiltered(typeof(UnityEngine.Object),SelectionMode.TopLevel|SelectionMode.Assets);
 		foreach(UnityEngine.Object o in objects){
 			folder = AssetDatabase.GetAssetPath(o);
-			Debug.Log(folder);
 			if(Directory.Exists(folder)){
 				break;
 			}
 		}
+		return folder;
+	}
+
+	[MenuItem("Assets/Lua/Create Plugin")]
+	public static void CreateLuaPlugin(){
+		string folder = GetSelectFolder();
 		if(string.IsNullOrEmpty(folder)){
 			Debug.LogError("Please select a folder.");
 			return;

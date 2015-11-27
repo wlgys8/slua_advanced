@@ -13,28 +13,75 @@ print = function( ... )
 	basePrint(unpack(arg))
 end
 
-local loadPluginFile = function ( pluginName,fileName)
-	local fullUrl = 'plug://'..pluginName..'/'..fileName
-	if LuaPluginUtil.ExistFile(pluginName,fileName) then
-		local f = loadfile(fullUrl)
-	--	if not f then
-	--		error(fullUrl..' do not exist!',2)
-	--	end
-		return f
-		--[[
-		local success,ret =  pcall(loadfile,fullUrl)
-		if success then
-			return ret
-		else
-			error(ret,3)
-		end--]]
+
+
+local function getParent( path )
+	if not path then return "" end
+
+	for i = #path,1,-1 do
+		if path:sub(i,i) == '.' then
+			return path:sub(0,i-1)
+		end
 	end
-	return nil,false
+	return ""
 end
 
 plugins = plugins or {}
 
+
+local loadPlugFile = function (filename,searchPaths )
+	for i = 1,#searchPaths do
+		local url = searchPaths[i]..filename
+	--	print ('search '..url)
+		if LuaPluginUtil.ExistFile(url) then
+			local f = loadfile(url)
+			return f,url
+		end
+	end
+end
+
+
 local baseRequire = require
+
+function requireFile(filename,fileEnv,searchPaths,...)
+	for i = 1,#searchPaths do
+		local path = searchPaths[i]..filename
+		if package.loaded[path]~= nil then return package.loaded[path] end
+	end
+
+	local f,path = loadPlugFile(filename,searchPaths)
+	local originalPath = __path
+	
+	if f then
+		__path = path
+		package.loaded[path] = true
+		if fileEnv then setfenv(f,fileEnv) end
+		local ret = f(...)
+		if ret ~= nil then
+			package.loaded[path] = ret
+		end
+		__path = originalPath
+		print('require '..path)
+		return ret,true
+	end
+	print ('require '..filename)
+	local ret = baseRequire(filename)
+	__path = originalPath
+	return ret,true
+end
+
+
+function createRequireFunc(plug,fileEnv)
+	return function (filename)
+		local dir = getParent(__path)
+		local root = "plug://"..plug.."/"
+
+		local searchPaths = dir and dir~='' and {dir..'.',root,"",
+		} or {root,""}
+
+		return requireFile(filename,fileEnv,searchPaths)
+	end
+end
 
 
 local function doPlugin(name, onComplete)
@@ -43,15 +90,13 @@ local function doPlugin(name, onComplete)
 		onComplete()
 		return
 	end
-	print('require ', 'plug://'..name..'/main.lua')
-	require('plug://'..name..'/main.lua')
+	requireFile('main',nil,{'plug://'..name..'/'})
 	if plugins[name] then
 		onComplete()
 		return
 	end
 
 	local co = coroutine.create(function ()
-		print ('start load plugin '..name)
 		while not plugins[name] do --until doPlugin completed
 			UnityEngine.Yield()
 		end
@@ -59,6 +104,7 @@ local function doPlugin(name, onComplete)
 	end)
 	coroutine.resume(co)
 end 
+
 
 
 plugin = function(table)
@@ -109,35 +155,12 @@ plugin = function(table)
 		env.__index = Global
 		setmetatable(env,env)
 
-		--use函数,等同于require,但不允许定义全局变量
-		local use = function(path,fileEnv,...)
-
-			fileEnv = fileEnv or env
-			local url = 'plug://'..name..'/'..path
-			if package.loaded[url] then
-				return package.loaded[url]
-			end
-			print('use',path)
-			local file = loadPluginFile(name,path)
-			if file then
-				print('require '.. url)
-				package.loaded[url] = true
-				setfenv(file,fileEnv)
-				local ret = file(...)
-				if ret ~= nil then
-					package.loaded[url] = ret
-				end
-				return package.loaded[url]
-			end
-			return baseRequire(path,...)
-		end
-		setfenv(use,env)
-		Global.use = use
-		
 		--require函数,等同于use,允许定义全局变量
-		Global.require = function (path,...)
-			return use(path,Global,...)
-		end
+		Global.require = createRequireFunc(name,Global)
+
+		--use函数,等同于require,但不允许定义全局变量
+		Global.use = createRequireFunc(name,env)
+
 		--将main函数设置为在新环境下执行
 		setfenv(main,env)
 

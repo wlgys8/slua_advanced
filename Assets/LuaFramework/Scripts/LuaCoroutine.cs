@@ -5,13 +5,13 @@ using SLua;
 [CustomLuaClass]
 public class LuaCoroutine : MonoBehaviour {
 
-	public void ExecuteWhen(object instruction,LuaFunction func){
-		StartCoroutine(_ExecuteWhen(instruction,func));
+	public void ExecuteWhen(object instruction,LuaFunction func,object param){
+		StartCoroutine(_ExecuteWhen(instruction,func,param));
 	}
 
-	private IEnumerator _ExecuteWhen(object instruction,LuaFunction func){
+	private IEnumerator _ExecuteWhen(object instruction,LuaFunction func,object param){
 		yield return instruction;
-		func.call();
+		func.call(param);
 	}
 
 }

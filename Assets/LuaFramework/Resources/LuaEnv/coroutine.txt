@@ -11,8 +11,8 @@ function LCoroutine:create(func)
 	local baseEnv = getfenv(func)
 	local funcEnv = {
 		__index = baseEnv,
-		yield = function( ... )
-			self:yield(co,...)
+		yield = function( instruction )
+			self:yield(co,instruction)
 		end,
 	}
 	setmetatable(funcEnv,funcEnv)
@@ -22,10 +22,12 @@ function LCoroutine:create(func)
 	return co
 end
 
+local function resumeCo(co)
+	coroutine.resume(co)
+end
+
 function LCoroutine:yield(co,instruction)
-	self.mono:ExecuteWhen(instruction,function ()
-		coroutine.resume(co)
-	end)
+	self.mono:ExecuteWhen(instruction,resumeCo,co)
 	coroutine.yield()
 
 end

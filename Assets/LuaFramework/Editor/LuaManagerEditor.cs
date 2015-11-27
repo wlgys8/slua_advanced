@@ -16,13 +16,13 @@ public class LuaManagerEditor : Editor {
 				EditorGUILayout.BeginHorizontal();
 				GUILayout.Space(10);
 				GUI.changed = false;
-				bool include = !manager.ignorePlugins.Contains(plugin);
-				bool include_new =  EditorGUILayout.Toggle(plugin,include);
+				bool ignore = manager.ignorePlugins.Contains(plugin);
+				ignore =  EditorGUILayout.Toggle(plugin,ignore);
 				if(GUI.changed){
-					if(include_new){
-						manager.ignorePlugins.Remove(plugin);
-					}else{
+					if(ignore){
 						manager.ignorePlugins.Add(plugin);
+					}else{
+						manager.ignorePlugins.Remove(plugin);
 					}
 				}
 				EditorGUILayout.EndHorizontal();

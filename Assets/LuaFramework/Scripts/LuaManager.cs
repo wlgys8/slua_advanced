@@ -282,7 +282,10 @@ public class LuaManager : MonoBehaviour {
 					if(ignoreMode == IgnoreMode.Selected){
 						return this.ignorePlugins.Contains(obj);
 					}else{
-						return !this.ignorePlugins.Contains(obj);
+
+						var ret = !this.ignorePlugins.Contains(obj);
+						if(ret) Debug.Log("remove "+obj);
+						return ret;
 					}
 
 				});

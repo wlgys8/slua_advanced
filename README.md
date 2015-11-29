@@ -1,7 +1,4 @@
-TODO:
-
-* support require file by relative path.
-
+Feature:
 
 # UniSLuaPF
 Plugin framework based on Unity+SLua
@@ -12,10 +9,13 @@ Features:
 * Plugin Design.
 * OPP Support.
 * Security Code Enviroment.
-
+* support require file by relative path.
+* 
 * 插件模式设计，每个插件有独立的运行环境，彼此之间互不干扰。
 * 支持面向对象。
 * 安全的代码环境（例如不允许隐式定义全局变量，每个插件有自己独立的全局环境，无法在声明之外再为类增加字段或方法)
+* 支持文件相对路径引用
+ 
 
 ##Setup (初始化)
 * SLua repository : https://github.com/pangweiwei/slua

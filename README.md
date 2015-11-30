@@ -1,3 +1,7 @@
+TODO:
+
+* use _ENV instead of setfenv/getfenv in lua 5.2
+
 
 # Slua_advanced
 Plugin framework based on Unity+SLua

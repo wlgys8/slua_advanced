@@ -1,18 +1,22 @@
 using UnityEngine;
 using System.Collections;
 using UnityEditor;
+using System.IO;
+using System.Collections.Generic;
 
 public class LuaPluginsBuilder{
 
-
 	
 	
-	[MenuItem("Build/BuildLuaPlugins")]
-	public static void BuildScriptBundle(){
-		string[] children = System.IO.Directory.GetDirectories("Assets/Luaplugins");
+	public static void BuildScriptBundle(string[] searchPaths){
+		List<string> children = new List<string>();
+		foreach(string searchPath in searchPaths){
+			string[] fd = System.IO.Directory.GetDirectories(searchPath);
+			children.AddRange(fd);
+		}
 		LuaBuildConfig config = LuaBuildConfig.Instance;
 		LuaAssetBundleBuilder builder = new LuaAssetBundleBuilder(config.availableCompilerPath);
-		builder.Build("Assets/Output/LuaPlugins/"+platformName,children,config.buildTarget);
+		builder.Build("Assets/Output/LuaPlugins/"+platformName,children.ToArray(),config.buildTarget);
 	}
 
 	public static string platformName{

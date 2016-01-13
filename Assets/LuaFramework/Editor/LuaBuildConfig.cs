@@ -4,13 +4,14 @@ using UnityEditor;
 
 public class LuaBuildConfig : ScriptableObject {
 
-	public string buildSymbol;
+	//public string buildSymbol;
 
 	public string[] luaCompileriOS;
 	public string[] luaCompilerAndroid;
 	public string[] luaCompilerOSX;
 	public string[] luaCompilerWindows;
 
+	public string[] searchPaths;
 
 	public BuildTarget buildTarget{
 		get{
@@ -54,6 +55,10 @@ public class LuaBuildConfig : ScriptableObject {
 		}
 	}
 
+	public void Build(){
+		LuaPluginsBuilder.BuildScriptBundle(searchPaths);
+	}
+
 	private static LuaBuildConfig _instance;
 
 	public static LuaBuildConfig Instance{
@@ -71,7 +76,7 @@ public class LuaBuildConfig : ScriptableObject {
 	}
 
 
-	[MenuItem("Build/SelectConfig")]
+	[MenuItem("Build/SelectBuildSetting")]
 	public static void SelectConfig(){
 		Selection.activeObject = LuaBuildConfig.Instance;
 	}

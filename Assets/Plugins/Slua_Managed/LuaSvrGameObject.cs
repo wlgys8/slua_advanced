@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !SLUA_STANDALONE
 namespace SLua
 {
 	using UnityEngine;
@@ -37,10 +38,9 @@ namespace SLua
 		public LuaState state;
 		public Action onUpdate;
 		public bool skipDebugger = true;
+		public bool openDebug = false;
 		DebugInterface di;
 
-		// make sure lua state finalize at last
-		// make sure LuaSvrGameObject excute order is max(9999)
 		void OnDestroy()
 		{
 			if (state != null)
@@ -51,17 +51,16 @@ namespace SLua
 					di = null;
 				}
 
-				// Main state shouldn't dispose until app quit due to some mono behaviour use state on disposed
-				// 
-
-				//state.Dispose();
-				//state = null;
+				// state is disposed by editorapplication if in the Editor
+				// state isn't disposed in App because that all resources will be disposed by app on process exit.
 			}
 		}
 
 		public void init() {
-			di = new DebugInterface(state);
-			di.init();
+			if(openDebug) {
+				di = new DebugInterface(state);
+				di.init();
+			}
 		}
 
 
@@ -74,6 +73,9 @@ namespace SLua
 
 		void OnGUI()
 		{
+			if(!openDebug)
+				return;
+
 			if (skipDebugger || di.isStarted)
 			{
 				skipDebugger = true;
@@ -91,3 +93,4 @@ namespace SLua
 		
 	}
 }
+#endif

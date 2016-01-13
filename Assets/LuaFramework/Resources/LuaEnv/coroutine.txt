@@ -1,7 +1,8 @@
 class 'LCoroutine'
 local GameObject = UnityEngine.GameObject
-function LCoroutine:ctor(gameObject)
-	local  gameObject = gameObject or GameObject('LCoroutine')
+function LCoroutine:ctor(gameObject, name)
+	local objName = name or 'LCoroutine'
+	local gameObject = gameObject or GameObject(objName)
 	self.mono = gameObject:AddComponent(LuaCoroutine)
 	self.gameObject = gameObject
 end

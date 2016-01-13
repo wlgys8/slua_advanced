@@ -102,7 +102,7 @@ public class LuaManager : MonoBehaviour {
 			
 		},delegate() {
 			_isInited = true;
-		},false);
+		},LuaSvrFlag.LSF_3RDDLL);
 		while(!isInited){
 			yield return null;
 		}

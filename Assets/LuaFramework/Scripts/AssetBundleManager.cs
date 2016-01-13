@@ -167,6 +167,18 @@ public class AssetBundleManager : MonoBehaviour{
 		return _loaded[bundleName].LoadAsset<T>(fileName);
 	}
 
+	public Object LoadAsset(string bundleName,string fileName){
+		if(!_loaded.ContainsKey(bundleName)){
+			Debug.LogError(bundleName + " should be loaded first");
+			return null;
+		}
+		var ret = _loaded[bundleName].LoadAsset(fileName);
+		if(ret == null){
+			Debug.LogErrorFormat("Unexisted asset in prefab {0} with path = {1}",bundleName,fileName);
+		}
+		return ret;
+	}
+
 	public bool Contains(string bundleName,string fileName){
 		if(!_loaded.ContainsKey(bundleName)){
 			return false;
@@ -183,10 +195,17 @@ public class AssetBundleManager : MonoBehaviour{
 	}
 
 
-	public class Request{
+	public class Request : CustomYieldInstruction{
 
 		private object _value;
 		public event System.Action<object> onDone;
+
+
+		public override bool keepWaiting {
+			get {
+				return !isDone;
+			}
+		}
 
 		public object value{
 			get{

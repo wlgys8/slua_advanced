@@ -25,7 +25,6 @@
 
 namespace SLua
 {
-	using UnityEngine;
 	using System.Collections;
 	using System.Collections.Generic;
 	using SLua;
@@ -52,7 +51,8 @@ namespace SLua
 		static Dictionary<string, string> sourceMd5 = new Dictionary<string, string>();
 		static Dictionary<string, string> md5Source = new Dictionary<string, string>();
 
-		const int DebugPort = 10240;
+		int DebugPort = SLuaSetting.Instance.debugPort;
+		string DebugIP = SLuaSetting.Instance.debugIP;
 
 
 		static DebugInterface instance;
@@ -210,14 +210,14 @@ watch local/up value  			watch
 #if LuaDebugger
 			try
 			{
-				IPEndPoint localEP = new IPEndPoint(IPAddress.Parse("0.0.0.0"), DebugPort);
+				IPEndPoint localEP = new IPEndPoint(IPAddress.Parse(DebugIP), DebugPort);
 				server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 				server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 				server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 				server.Bind(localEP);
 				server.Listen(10);
 				server.BeginAccept(new AsyncCallback(onClientConnect), server);
-				Debug.Log("Opened lua debugger interface at " + localEP.ToString());
+				Logger.Log("Opened lua debugger interface at " + localEP.ToString());
 
 				// redirect output to client socket
 				var luaFunc = state.getFunction("Slua.ldb.setOutput");
@@ -225,7 +225,7 @@ watch local/up value  			watch
 			}
 			catch (Exception e)
 			{
-				Debug.LogError(string.Format("LuaDebugger listened failed for reason:：{0}", e.Message));
+				Logger.LogError(string.Format("LuaDebugger listened failed for reason:：{0}", e.Message));
 			}
 #endif
 		}
@@ -273,7 +273,7 @@ watch local/up value  			watch
 					catch (Exception e)
 					{
 						error(e.Message);
-						Debug.LogError(e.Message);
+                        Logger.LogError(e.Message);
 					}
 				}
 				else
@@ -294,7 +294,7 @@ watch local/up value  			watch
 
 				if (packageLen < 0)
 				{
-					Debug.LogError("Invalid packaged received.");
+					Logger.LogError("Invalid packaged received.");
 					return false;
 				}
 
@@ -303,7 +303,7 @@ watch local/up value  			watch
 
 					if (packageLen > RecvMax)
 					{
-						Debug.LogError("Invalid debug command received.");
+						Logger.LogError("Invalid debug command received.");
 						return false;
 					}
 
@@ -367,7 +367,7 @@ watch local/up value  			watch
 
 			debugMode = false;
 
-			Debug.Log("New debug session connected");
+			Logger.Log("New debug session connected");
 		}
 
 		public void close()
@@ -390,7 +390,7 @@ watch local/up value  			watch
 				server = null;
 			}
 
-			Debug.Log("Closed lua debugger interface.");
+			Logger.Log("Closed lua debugger interface.");
 
 		}
 
@@ -401,7 +401,7 @@ watch local/up value  			watch
 			client.Close();
 			client = null;
 
-			Debug.Log("Debug session disconnected");
+			Logger.Log("Debug session disconnected");
 		}
 
 		public string md5(string f)

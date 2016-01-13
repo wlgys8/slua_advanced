@@ -21,7 +21,7 @@ function AddTo(gameObject, BehaviourClass )
 		if not inst[methodName] then
 			return
 		end
-		inst[methodName](inst,unpack(params))
+		inst[methodName](inst,unpack(params.Table))
 	end}
 	return inst
 end

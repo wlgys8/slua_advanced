@@ -64,7 +64,7 @@ function requireFile(filename,fileEnv,searchPaths,...)
 		print('require '..path)
 		return ret,true
 	end
-	print ('require '..filename)
+	print ('require system file '..filename)
 	local ret = baseRequire(filename)
 	__path = originalPath
 	return ret,true
@@ -90,6 +90,7 @@ local function doPlugin(name, onComplete)
 		onComplete()
 		return
 	end
+	print('====>start load plugin '..name)
 	requireFile('main',nil,{'plug://'..name..'/'})
 	if plugins[name] then
 		onComplete()
@@ -133,7 +134,7 @@ plugin = function(table)
 			use = false,
 			_classes = {},
 		}
-		Global._G = _G
+		Global._G = Global
 		Global._sys = _G
 		Global.Global = Global
 
@@ -143,7 +144,7 @@ plugin = function(table)
 
 		local env = {
 		} --为use定义一个新环境，继承Global,但不允许定义新字段
-		env._G = env
+		env._G = Global
 		--新环境不允许直接定义全局变量，只能通过Global.xxx来定义
 		env.__newindex = function(_,k,v)
 			if Global[k] then
@@ -201,7 +202,8 @@ end
 local function DoAllPlugins()
 	local plugins = LuaPluginUtil.GetPluginList()
 	local co = coroutine.create(function(co)
-		for i,name in ipairs(plugins) do
+		for i = 1,plugins.Length do 
+			local name = plugins[i]
 			local done = false
 			doPlugin(name,function ()
 				done = true

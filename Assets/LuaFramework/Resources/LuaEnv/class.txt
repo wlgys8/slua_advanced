@@ -62,19 +62,20 @@ class.__call = function (_,name,Super)
 
 
 	local function SetClassProperty(k,v)
-		if property.set[k] then
-			property.set[k](v)
-			return true
-		end
-		return false
+		local p = property[k]
+		if not p then return false end
+		local set = p.set
+		if not set then return false end
+		set(v)
+		return true
 	end
 
 	local clsContent = {}
 
 	local clsMeta={
 		__index = function (_,k,v)
-			if property.get[k] then --有属性，则返回属性
-				return property.get[k]()
+			if property[k] and property[k].get then --有属性，则返回属性
+				return property[k].get()
 			end
 			if clsContent[k]~= nil then --否则从内容表获取字段
 				return clsContent[k]
@@ -142,8 +143,8 @@ class.__call = function (_,name,Super)
 				error('property is keyword.',2)
 				return true
 			end
-			if property.set[k] then
-				property.set[k](instance,v)
+			if property[k] and property[k].set then
+				property[k].set(instance,v)
 				return true
 			end
 			return false

@@ -55,7 +55,6 @@ public class LuaManagerEditor : Editor {
 	void OnEnable(){
 		LuaManager manager = target as LuaManager;
 		_plugins = manager.GetPluginList(true);
-
 		List<string> lostPlugins = new List<string>();
 		lostPlugins.AddRange(manager.ignorePlugins);
 		lostPlugins.RemoveAll(delegate(string obj) {

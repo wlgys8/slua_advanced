@@ -489,6 +489,7 @@ namespace SLua
 		static public LoaderDelegate loaderDelegate;
 		static public OutputDelegate logDelegate;
 		static public OutputDelegate errorDelegate;
+		static public OutputDelegate warnDelegate;
 
 
 		public delegate void UnRefAction(IntPtr l, int r);
@@ -581,6 +582,9 @@ end
 
 			LuaDLL.lua_pushcfunction(L, print);
 			LuaDLL.lua_setglobal(L, "print");
+
+			LuaDLL.lua_pushcfunction(L, warn);
+			LuaDLL.lua_setglobal(L, "warn");
 
 			LuaDLL.lua_pushcfunction(L, pcall);
 			LuaDLL.lua_setglobal(L, "pcall");
@@ -794,6 +798,37 @@ end
 			if (logDelegate != null)
 			{
 				logDelegate(s);
+			}
+			return 0;
+		}
+
+		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+		internal static int warn(IntPtr L)
+		{
+			int n = LuaDLL.lua_gettop(L);
+			string s = "";
+
+			LuaDLL.lua_getglobal(L, "tostring");
+
+			for (int i = 1; i <= n; i++)
+			{
+				if (i > 1)
+				{
+					s += "    ";
+				}
+
+				LuaDLL.lua_pushvalue(L, -1);
+				LuaDLL.lua_pushvalue(L, i);
+
+				LuaDLL.lua_call(L, 1, 1);
+				s += LuaDLL.lua_tostring(L, -1);
+				LuaDLL.lua_pop(L, 1);
+			}
+			LuaDLL.lua_settop(L, n);
+			Logger.LogWarning(s);
+			if (warnDelegate != null)
+			{
+				warnDelegate(s);
 			}
 			return 0;
 		}

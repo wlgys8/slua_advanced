@@ -23,7 +23,6 @@ end
 --static function
 function ClassA.foo2( ... )
 	print 'call classAstatic function foo2'
-	print(Global['ClassB'])
 end
 
 --also static function
@@ -34,6 +33,16 @@ end
 -- private static function
 local function foo4( ... )
 end
+
+-- define a c# like property
+property.p1 = {
+	get = function ( self )
+		print 'get property p1'
+	end,
+	set = function ( self,value )
+		print ('set property p1 to '..value)
+	end
+}
 
 classend()
 
@@ -63,6 +72,7 @@ ClassB.ClassD = class('ClassD')
 
 
 classend()
+
 
 classend()
 

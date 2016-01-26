@@ -13,6 +13,7 @@ plugin{
 
 		local d = ClassB.ClassD()
 
+		a.p1 = 2
 		b:foo()
 
 		ClassA.foo2()

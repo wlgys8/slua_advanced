@@ -77,7 +77,9 @@ Framework provide a keyword `use`,it is almost the same as `require`. What's the
 ##How to share code between plugins (插件之间的互相访问)
 
 ##How to build plugins as assetBundles (如何打包成AssetsBundle)
-Click Menu->Build->BuildLuaPlugins
+* Click Menu->Build->SelectBuildSetting
+* Config the search path where your lua plugins locate,like 'Assets/LuaPlugins'
+* Click build
 
 Framework will generate assetbundles under Assets/Output/\<Platform\>/
 

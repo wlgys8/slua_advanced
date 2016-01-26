@@ -48,8 +48,6 @@ class.__call = function (_,name,Super)
 
 	--保存属性函数
 	local property={
-		get = {},
-		set = {},
 	}
 
 
@@ -59,7 +57,6 @@ class.__call = function (_,name,Super)
 		_className = name or 'anonymous',
 		property = property ,
 	}
-
 
 	local function SetClassProperty(k,v)
 		local p = property[k]
@@ -135,7 +132,7 @@ class.__call = function (_,name,Super)
 
 		}
 		local instanceContent = {
-
+			_className = cls._className
 		}
 
 		local function SetInstProp(k,v)
@@ -153,16 +150,16 @@ class.__call = function (_,name,Super)
 		local instanceMeta = {
 			__metatable = 'protected',
 			__index = function (_,k)
-				local v = property.get[k]
-				if v then  --如果有属性，则优先读取属性的方法
-					return v(instance)
+				local v = property[k]
+				if v and v.get then  --如果有属性，则优先读取属性的方法
+					return v.get(instance)
 				end
 				v = instanceContent[k]  --其次检查自身是否存在字段或方法
 				if v ~= nil then
 					return v
 				end
 				v = cls[k] --再者从class定义中读取
-				if v and type(v) == 'function' then 
+				if v and type(v) == 'function' then  --只读class的function
 					return v
 				end
 				local super = rawget(instanceContent,'super')
@@ -230,19 +227,25 @@ class.__call = function (_,name,Super)
 
 	--classend关键字之后的环境恢复为原来的环境。以及无法再为类添加新字段、函数
 	cls.classend = function()
-		cls.__newindex = function(_,k,v)
-			if k == nil then
-				error('Do not set a field to nil,use false instead',3)
-				return
-			end
+		clsMeta.__newindex = function(_,k,v)
+			--warn('set key',k,v)
 			if SetClassProperty(k,v) then
 				return
 			end
-			if Super and Super[k] then
+			if v == nil then
+				error('Do not set a field to nil,use false instead',2)
+				return
+			end
+			if clsContent[k] ~= nil then
+				clsContent[k] = v
+				return
+			end
+			if Super and Super[k]~= nil then
 				Super[k] = value
 				return
 			end
-			error('undefined field in class ['..name..']'..',field = '..k,3)
+			error('undefined field in class ['..name..']'..',field = '..k,2)
+
 		end
 		setfenv(2,G)
 	end
@@ -251,6 +254,7 @@ class.__call = function (_,name,Super)
 	--将类导出到上一级环境
 		rawset(G,name,cls)
 	end
+	print(cls._className)
 	return cls
 end
 

@@ -128,22 +128,29 @@ plugin = function(table)
 	local run = function ( ... )
 
 		--新环境继承原来的全局环境
-		local Global = {
-			__index = _G,
-			require = false,
-			use = false,
+		local  Global = {
 			_classes = {},
+			_sys = _G,
+			_G = Global,
 		}
-		Global._G = Global
-		Global._sys = _G
 		Global.Global = Global
 
-		setmetatable(Global,Global)
+		local GlobalMeta = {
+			__index = _G,
+		}
 
+		setmetatable(Global,GlobalMeta)
 		
 
 		local env = {
 		} --为use定义一个新环境，继承Global,但不允许定义新字段
+
+		--require函数,等同于use,允许定义全局变量
+		Global.require = createRequireFunc(name,Global)
+
+		--use函数,等同于require,但不允许定义全局变量
+		Global.use = createRequireFunc(name,env)
+
 		env._G = Global
 		--新环境不允许直接定义全局变量，只能通过Global.xxx来定义
 		env.__newindex = function(_,k,v)
@@ -155,12 +162,6 @@ plugin = function(table)
 		end
 		env.__index = Global
 		setmetatable(env,env)
-
-		--require函数,等同于use,允许定义全局变量
-		Global.require = createRequireFunc(name,Global)
-
-		--use函数,等同于require,但不允许定义全局变量
-		Global.use = createRequireFunc(name,env)
 
 		--将main函数设置为在新环境下执行
 		setfenv(main,env)
